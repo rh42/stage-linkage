@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="Stage-Linkage and Its Limits">
+<meta property="og:description" content="What in vivo biomarker research reveals about Parkinson's disease and schizophrenia. Two disorders, two architectures, one framework.">
+<meta property="og:type" content="article">
+
+<title>Stage-Linkage &amp; Its Limits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:       #fdf8eb;          /* slightly lighter cream for contrast */
+  --surface:  #f6eedb;
+  --ink:      #14100c;          /* darker warm near-black */
+  --rule:     #14100c;
+  --hair:     rgba(20,16,12,.14);
+  --hair-2:   rgba(20,16,12,.30);
+  --text:     #14100c;
+  --muted:    #4d3f2d;          /* much darker muted for body readability */
+  --faint:    #a8966f;
+
+  /* bold accent set: deeper, more saturated */
+  --pd:       oklch(0.45 0.10 195);
+  --pd-soft:  oklch(0.45 0.10 195 / .09);
+  --sz:       oklch(0.52 0.17 32);
+  --sz-soft:  oklch(0.52 0.17 32 / .08);
+  --amber:    oklch(0.62 0.13 62);
+  --amber-soft: oklch(0.62 0.13 62 / .10);
+
+  --display: 'Space Grotesk', sans-serif;
+  --body:    'Space Grotesk', sans-serif;
+  --mono:    'IBM Plex Mono', monospace;
+  --max:     1100px;
+}
+
+/* ── RESET ── */
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── PROGRESS ── */
+#prog {
+  position: fixed; top:0; left:0; height:2px;
+  background: var(--amber); z-index:300;
+  transition: width .1s linear;
+  width: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; width:100%; z-index:200;
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom:1px solid var(--hair-2);
+  display: flex; justify-content:space-between; align-items:stretch;
+  padding: 0 2.5rem;
+}
+.nav-brand {
+  font-family: var(--display); font-size:.95rem; font-weight:600;
+  letter-spacing:-.005em;
+  text-decoration:none; color:var(--text);
+  display:flex; align-items:center; padding:.95rem 0;
+}
+.nav-links { display:flex; gap:.25rem; }
+.nav-links a {
+  display:flex; align-items:center;
+  font-family: var(--mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.04em; text-decoration:none;
+  color:var(--muted); padding:0 .9rem;
+  transition:color .15s;
+}
+.nav-links a:hover { color:var(--text); }
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity:0; transform:translateY(16px);
+  transition:opacity .55s ease, transform .55s ease;
+  will-change: opacity, transform;
+}
+.reveal.in { opacity:1 !important; transform:translateY(0) !important; }
+.reveal.d1 { transition-delay:.08s; }
+.reveal.d2 { transition-delay:.16s; }
+.reveal.d3 { transition-delay:.24s; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition:none; opacity:1; transform:none; }
+}
+
+/* ── LAYOUT ── */
+section { padding:6rem 2.5rem; }
+.container { max-width:var(--max); margin:0 auto; }
+.narrow { max-width:700px; }
+hr.rule { border:none; border-top:1px solid var(--hair-2); }
+
+/* ── SECTION LABELS ── */
+.sec-tag {
+  font-family:var(--mono); font-size:.7rem; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase;
+  padding:.25rem .6rem; border:1px solid var(--hair-2);
+  border-radius:2px;
+  display:inline-block; margin-bottom:1.5rem;
+  color:var(--muted);
+}
+.sec-tag.pd  { border-color:color-mix(in oklab, var(--pd) 50%, transparent);   color:var(--pd); }
+.sec-tag.sz  { border-color:color-mix(in oklab, var(--sz) 50%, transparent);   color:var(--sz); }
+.sec-tag.amb { border-color:color-mix(in oklab, var(--amber) 60%, transparent); color:var(--amber); }
+.sec-h {
+  font-family:var(--display); font-size:clamp(2rem,3.6vw,2.75rem);
+  font-weight:600; line-height:1.1;
+  letter-spacing:-.02em;
+  margin-bottom:1.25rem;
+  text-wrap:balance;
+}
+.sec-body { font-size:1.0625rem; font-weight:400; color:var(--muted); max-width:660px; line-height:1.7; }
+.sec-body strong { color:var(--text); font-weight:600; }
+
+/* ── CALLOUT ── */
+.callout {
+  border-left:3px solid var(--amber);
+  background:var(--amber-soft);
+  padding:1.4rem 1.75rem; margin:2rem 0;
+  border-radius:0 4px 4px 0;
+}
+.callout-label {
+  font-family:var(--mono); font-size:.68rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--amber); margin-bottom:.5rem;
+}
+.callout p { font-size:1rem; color:var(--text); line-height:1.65; }
+.callout.pd-callout { border-left-color:var(--pd); background:var(--pd-soft); }
+.callout.pd-callout .callout-label { color:var(--pd); }
+.callout.sz-callout { border-left-color:var(--sz); background:var(--sz-soft); }
+.callout.sz-callout .callout-label { color:var(--sz); }
+
+
+/* ════════════════════════
+   HERO
+════════════════════════ */
+#hero {
+  padding:10rem 2.5rem 7rem;
+  min-height:88vh;
+  display:flex; align-items:center;
+  border-bottom:1px solid var(--hair-2);
+  position:relative;
+}
+.hero-inner { max-width:980px; margin:0 auto; }
+.hero-eyebrow {
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:2rem;
+  display:flex; align-items:center; gap:.75rem;
+}
+.hero-eyebrow::before {
+  content:''; width:24px; height:1px; background:var(--amber);
+}
+.hero-title {
+  font-family:var(--display);
+  font-size:clamp(3rem, 8vw, 6.5rem);
+  font-weight:600;
+  line-height:1;
+  letter-spacing:-.035em;
+  margin-bottom:2rem;
+  text-wrap:balance;
+}
+.hero-title .red { color:var(--sz); font-style:italic; font-weight:500; letter-spacing:-.02em; }
+.hero-sub {
+  font-family:var(--display); font-weight:400;
+  font-size:1.4rem; max-width:640px; line-height:1.35;
+  color:var(--text); margin-bottom:3rem;
+  letter-spacing:-.005em;
+}
+.hero-thesis {
+  max-width:580px;
+  font-size:1.0625rem; color:var(--muted); line-height:1.7;
+}
+.hero-thesis strong { color:var(--text); font-weight:600; }
+.hero-thesis-label {
+  display:block; font-family:var(--mono); font-size:.7rem;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--amber); margin-bottom:.7rem; font-weight:500;
+}
+
+/* ════════════════════════
+   QUESTION
+════════════════════════ */
+#question { border-bottom:1px solid var(--hair-2); }
+.bm-types {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:1.25rem; margin:2.5rem 0;
+}
+.bm-type {
+  padding:1.75rem;
+  border:1px solid var(--hair-2);
+  border-radius:6px;
+  background:var(--surface);
+  opacity:0;
+  transform:translateY(12px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.bm-types.in .bm-type { opacity:1; transform:translateY(0); }
+.bm-types.in .bm-type:nth-child(1) { transition-delay:.05s; }
+.bm-types.in .bm-type:nth-child(2) { transition-delay:.30s; }
+.bm-types.in .bm-type:nth-child(3) { transition-delay:.55s; }
+@media (hover: hover) {
+  .bm-types.in:hover .bm-type { opacity:.35; transition: opacity .25s ease; }
+  .bm-types.in:hover .bm-type:hover { opacity:1; }
+}
+.bm-types.has-focus .bm-type { opacity:.35; transition: opacity .25s ease; }
+.bm-types.has-focus .bm-type.focused { opacity:1; }
+.bm-type-label {
+  font-family:var(--display); font-size:.95rem; font-weight:600;
+  letter-spacing:-.005em;
+  margin-bottom:.6rem;
+}
+.bm-type-label.ct { color:var(--pd); }
+.bm-type-label.cp { color:var(--amber); }
+.bm-type-label.cq { color:var(--sz); }
+.bm-type p { font-size:.95rem; color:var(--muted); line-height:1.6; }
+
+/* ════════════════════════
+   FRAMEWORK
+════════════════════════ */
+#framework { border-bottom:1px solid var(--hair-2); }
+.criteria {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:2rem; margin-top:2.5rem;
+}
+.criterion {
+  padding:0 0 0 1.5rem;
+  border-left:1px solid var(--hair-2);
+}
+.crit-num {
+  font-family:var(--mono); font-size:.75rem; font-weight:500;
+  letter-spacing:.1em; color:var(--amber); margin-bottom:1rem;
+}
+.crit-title { font-family:var(--display); font-size:1.15rem; font-weight:600; letter-spacing:-.005em; margin-bottom:.65rem; }
+.crit-body  { font-size:.95rem; color:var(--muted); line-height:1.6; }
+
+/* ════════════════════════
+   TIMELINE (editorial stack + mini-map)
+════════════════════════ */
+.tl-section {
+  border:1px solid var(--hair-2);
+  border-radius:6px;
+  margin:2.5rem 0;
+  overflow:hidden;
+  background:var(--bg);
+}
+.tl-sec-hdr {
+  border-bottom:1px solid var(--hair-2);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.95rem 1.5rem; gap:1rem;
+  background:var(--surface);
+}
+.tl-sec-title {
+  font-family:var(--display);
+  font-size:1rem; font-weight:600; letter-spacing:-.005em;
+}
+.tl-sec-title.pd { color:var(--pd); }
+.tl-sec-title.sz { color:var(--sz); }
+.tl-sec-span {
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  color:var(--muted); letter-spacing:.04em;
+  white-space:nowrap;
+}
+
+/* Mini-map (static overview) */
+.tl-mini { padding:1.5rem 2rem 1.25rem; border-bottom:1px solid var(--hair); }
+.tl-mini-track { position:relative; height:14px; margin: .25rem 0; }
+.tl-mini-track::before {
+  content:''; position:absolute; left:0; right:0; top:50%;
+  height:1px; background:var(--hair-2); transform:translateY(-50%);
+}
+.tl-mini-event {
+  position:absolute; top:50%;
+  width:11px; height:11px; border-radius:50%;
+  background:var(--bg);
+  border:1.5px solid var(--amber);
+  transform:translate(-50%,-50%);
+}
+.tl-mini-event[data-mark="pd"] { background:var(--pd); border-color:var(--pd); }
+.tl-mini-event[data-mark="sz"] { background:var(--sz); border-color:var(--sz); }
+.tl-mini-event[data-mark="dx"] { background:var(--ink); border-color:var(--ink); width:13px; height:13px; }
+.tl-mini-axis {
+  display:flex; justify-content:space-between;
+  font-family:var(--mono); font-size:.65rem; color:var(--faint);
+  letter-spacing:.04em; margin-top:.2rem;
+}
+
+/* Editorial event stack with spine */
+.tl-stack {
+  position:relative;
+  padding: .5rem 1.5rem 1rem 4rem;
+}
+.tl-spine {
+  position:absolute;
+  top:2rem; bottom:1rem;
+  left:2.4rem;
+  width:1px;
+  background:var(--hair-2);
+}
+.tl-ev {
+  position:relative;
+  padding:1.5rem 0;
+  opacity:0;
+  transform:translateY(10px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.tl-ev.visible { opacity:1; transform:translateY(0); }
+.tl-ev.nonspec.visible { opacity:.55; }
+.tl-ev + .tl-ev { border-top:1px solid var(--hair); }
+
+/* dot on the spine */
+.tl-ev-dot {
+  position:absolute;
+  left:-1.6rem;
+  top:1.85rem;
+  width:11px; height:11px;
+  border-radius:50%;
+  background:var(--bg);
+  border:2px solid var(--hair-2);
+  transform:translateX(-50%);
+  transition: background .5s ease, border-color .5s ease, box-shadow .5s ease;
+}
+.tl-ev.visible.pd-ev .tl-ev-dot { border-color:var(--amber); background:var(--amber); }
+.tl-ev.visible.saa   .tl-ev-dot { border-color:var(--pd); background:var(--pd); box-shadow:0 0 0 4px var(--pd-soft); }
+.tl-ev.visible.sz-ev .tl-ev-dot { border-color:var(--amber); background:var(--amber); }
+.tl-ev.visible.chr   .tl-ev-dot { border-color:var(--sz); background:var(--sz); box-shadow:0 0 0 4px var(--sz-soft); }
+.tl-ev.visible.dx    .tl-ev-dot { border-color:var(--ink); background:var(--ink); }
+.tl-ev.visible.nonspec .tl-ev-dot { border-color:var(--faint); background:var(--bg); }
+
+.tl-ev-yr {
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  color:var(--amber); letter-spacing:.04em; margin-bottom:.4rem;
+}
+.tl-ev.visible.saa .tl-ev-yr { color:var(--pd); }
+.tl-ev.visible.chr .tl-ev-yr,
+.tl-ev.visible.dx  .tl-ev-yr { color:var(--sz); }
+.tl-ev-num { font-variant-numeric:tabular-nums; display:inline-block; min-width:1.3em; }
+.tl-ev-yr-sub { color:var(--muted); }
+.tl-ev-name {
+  font-family:var(--display); font-size:1.08rem; font-weight:600;
+  letter-spacing:-.005em;
+  color:var(--text); line-height:1.3; margin-bottom:.5rem;
+}
+.tl-ev.visible.pd-ev .tl-ev-name { color:var(--pd); }
+.tl-ev.visible.saa   .tl-ev-name { color:var(--pd); }
+.tl-ev.visible.sz-ev .tl-ev-name { color:var(--sz); }
+.tl-ev.visible.chr   .tl-ev-name { color:var(--sz); }
+.tl-ev.visible.dx    .tl-ev-name { color:var(--sz); }
+.tl-ev.nonspec .tl-ev-name { color:var(--muted); }
+.tl-ev-sub { font-size:.95rem; color:var(--muted); line-height:1.65; max-width:580px; }
+
+.tl-sec-ftr {
+  border-top:1px solid var(--hair-2);
+  background:var(--surface);
+  display:grid; grid-template-columns:auto 1fr;
+  gap:1.5rem; padding:1.1rem 1.5rem; align-items:baseline;
+}
+.tl-ftr-rate { font-family:var(--mono); font-size:1.15rem; font-weight:500; white-space:nowrap; letter-spacing:-.01em; }
+.tl-ftr-rate.pd { color:var(--pd); }
+.tl-ftr-rate.sz { color:var(--sz); }
+.tl-ftr-text { font-size:.9rem; color:var(--muted); line-height:1.55; }
+.tl-ftr-cav  { display:block; font-family:var(--mono); font-size:.7rem; color:var(--faint); margin-top:.3rem; }
+
+/* ════════════════════════
+   TRS COMPONENT
+════════════════════════ */
+.trs-wrap { border:1px solid var(--hair-2); border-radius:6px; margin:2.5rem 0; background:var(--bg); overflow:hidden; }
+.trs-inner { padding:2rem; }
+.trs-setup { font-size:1.0625rem; font-weight:400; color:var(--muted); max-width:600px; line-height:1.7; margin-bottom:1.75rem; }
+.trs-setup strong { color:var(--text); font-weight:600; }
+.trs-g-note { font-size:.9rem; color:var(--muted); margin-bottom:1.75rem; padding:.75rem 1rem; background:var(--surface); border-radius:4px; border-left:2px solid var(--amber); }
+.trs-g-note em { color:var(--text); font-style:normal; font-weight:600; }
+.trs-bars { margin-bottom:1.75rem; }
+.trs-row  { display:flex; align-items:center; gap:1.25rem; margin-bottom:1rem; }
+.trs-lbl  { font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.04em; text-transform:uppercase; width:185px; flex-shrink:0; color:var(--muted); transition:color .4s; line-height:1.4; }
+.trs-lbl.lit { color:var(--text); }
+.trs-track { flex:1; height:38px; background:var(--surface); border:1px solid var(--hair); border-radius:3px; overflow:hidden; }
+.trs-fill  { height:100%; display:flex; align-items:center; padding:0 12px; font-family:var(--mono); font-size:.78rem; font-weight:500; color:#fff; width:0; transition:width 1.1s cubic-bezier(.4,0,.2,1); white-space:nowrap; }
+.trs-fill.f-all { background:var(--sz); }
+.trs-fill.f-non { background:var(--sz); }
+.trs-fill.f-trs { background:var(--sz-soft); border:1px dashed var(--sz); color:var(--sz); }
+.trs-ann  { font-family:var(--mono); font-size:.7rem; color:var(--muted); width:120px; flex-shrink:0; line-height:1.5; opacity:0; transition:opacity .5s .6s; }
+.trs-ann.show { opacity:1; }
+.trs-callout { display:none; margin:.5rem 0 1.5rem; padding:1.25rem 1.5rem; border:1px solid color-mix(in oklab, var(--sz) 40%, transparent); background:var(--sz-soft); border-radius:4px; }
+.trs-callout.show { display:flex; align-items:baseline; gap:1.25rem; }
+.trs-callout-num  { font-family:var(--mono); font-size:3rem; font-weight:500; color:var(--sz); line-height:1; flex-shrink:0; letter-spacing:-.02em; }
+.trs-callout-text { font-size:.95rem; font-weight:400; color:var(--muted); line-height:1.6; }
+.trs-callout-text strong { color:var(--text); font-weight:600; }
+.trs-btn-row { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+.trs-btn { border:1px solid var(--hair-2); background:var(--bg); font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.06em; text-transform:uppercase; padding:.6rem 1.1rem; cursor:pointer; color:var(--text); transition:background .15s,color .15s,border-color .15s; border-radius:3px; }
+.trs-btn:hover { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.trs-btn:disabled { opacity:.35; cursor:default; }
+.trs-btn.reset-btn { border-color:var(--hair); color:var(--muted); }
+.trs-punchline { margin-top:0; border-top:0 solid var(--hair-2); padding-top:0; max-height:0; overflow:hidden; opacity:0; transition:opacity .5s 1.4s, max-height .5s 1.2s, padding-top .5s 1.2s, margin-top .5s 1.2s, border-top-width .5s 1.2s; font-size:1rem; font-weight:400; color:var(--muted); max-width:620px; line-height:1.65; }
+.trs-punchline.show { opacity:1; max-height:400px; margin-top:1.75rem; padding-top:1.5rem; border-top-width:1px; }
+.trs-punchline strong { color:var(--text); font-weight:600; }
+.trs-deep { display:none; font-family:var(--mono); font-size:.78rem; color:var(--sz); margin-top:.75rem; border-top:1px solid var(--hair); padding-top:.75rem; line-height:1.65; }
+.trs-deep.open { display:block; }
+.trs-deep-btn { border:1px solid var(--hair); background:transparent; font-family:var(--mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; padding:.4rem .75rem; cursor:pointer; color:var(--muted); opacity:0; transition:opacity .4s 2s,background .15s,color .15s; margin-top:1rem; display:block; border-radius:3px; }
+.trs-deep-btn.show { opacity:1; }
+.trs-deep-btn:hover { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+
+/* ════════════════════════
+   DEPTH TOGGLE
+════════════════════════ */
+.depth-wrap { border:1px solid var(--hair-2); border-radius:6px; margin:2.5rem 0; overflow:hidden; }
+.depth-hdr { padding:1.1rem 1.5rem; border-bottom:1px solid var(--hair); display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+.depth-hdr-title { font-family:var(--display); font-size:.95rem; font-weight:600; letter-spacing:-.005em; }
+.depth-toggle-btn { border:1px solid var(--hair-2); background:var(--bg); font-family:var(--mono); font-size:.7rem; font-weight:500; letter-spacing:.06em; text-transform:uppercase; padding:.4rem .9rem; cursor:pointer; color:var(--muted); transition:background .15s,color .15s,border-color .15s; border-radius:3px; }
+.depth-toggle-btn:hover, .depth-toggle-btn.on { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.depth-items { padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1rem; }
+.depth-item { border:1px solid var(--hair); border-radius:4px; overflow:hidden; }
+.depth-surface { padding:1.1rem 1.25rem; }
+.depth-surface-text { font-size:1rem; font-weight:400; color:var(--text); line-height:1.65; }
+.depth-tech { padding:1rem 1.25rem; background:var(--surface); border-top:1px solid var(--hair); display:none; }
+.depth-tech.open { display:block; }
+.depth-tech-label { font-family:var(--mono); font-size:.65rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--pd); margin-bottom:.5rem; }
+.depth-tech-text { font-family:var(--mono); font-size:.8rem; color:var(--muted); line-height:1.65; }
+.depth-cite { display:block; margin-top:.5rem; color:var(--pd); font-size:.72rem; }
+
+/* ════════════════════════
+   COMPARISON PANEL (race animation)
+════════════════════════ */
+#asymmetry { border-top:1px solid var(--hair-2); border-bottom:1px solid var(--hair-2); background:var(--surface); }
+.comp-intro { font-size:1.0625rem; font-weight:400; color:var(--muted); max-width:620px; line-height:1.7; margin-bottom:2.5rem; }
+.comp-intro strong { color:var(--text); font-weight:600; }
+
+.comp-ticker {
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding-bottom:1rem; border-bottom:1px solid var(--hair); margin-bottom:1.5rem;
+  gap:1.5rem; flex-wrap:wrap;
+}
+.comp-ticker-label { font-family:var(--mono); font-size:.7rem; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.comp-ticker-val   { font-family:var(--display); font-size:clamp(2.4rem,5vw,3.5rem); font-weight:600; letter-spacing:-.03em; color:var(--text); font-variant-numeric:tabular-nums; line-height:1; }
+.comp-ticker-val .yr-sign { color:var(--muted); }
+.comp-ticker-val .yr-unit { font-family:var(--mono); font-size:.55em; font-weight:500; color:var(--muted); letter-spacing:.04em; margin-left:.35em; }
+
+.comp-row { margin-bottom:1.5rem; }
+.comp-row-lbl { font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.04em; text-transform:uppercase; margin-bottom:.5rem; }
+.comp-row-lbl.pd { color:var(--pd); }
+.comp-row-lbl.sz { color:var(--sz); }
+.comp-bar {
+  height:42px; background:var(--bg); border:1px solid var(--hair);
+  border-radius:3px; position:relative; overflow:hidden; margin-bottom:.4rem;
+}
+.comp-bar::after {
+  content:''; position:absolute; right:0; top:0; bottom:0; width:2px; background:var(--ink);
+}
+.comp-seg { position:absolute; top:0; height:100%; display:flex; align-items:center; }
+/* Default (pre-race) widths = 0, transition triggered by .race-on */
+.comp-pd-fill  { background:var(--pd); opacity:.92; left:0; width:0; padding-left:12px; font-family:var(--mono); font-size:.72rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; transition:width 4s linear; }
+.comp-ns-fill  { background:var(--sz-soft); border-right:1px dashed var(--sz); left:80%; width:0; transition:width .55s linear 3.2s; }
+.comp-chr-fill { background:var(--sz); left:93%; width:0; padding-left:6px; font-family:var(--mono); font-size:.68rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; transition:width .3s linear 3.72s; }
+#asymmetry.race-reset .comp-pd-fill,
+#asymmetry.race-reset .comp-ns-fill,
+#asymmetry.race-reset .comp-chr-fill { transition: none !important; }
+#asymmetry.race-on .comp-pd-fill  { width:100%; }
+#asymmetry.race-on .comp-ns-fill  { width:13%; }
+#asymmetry.race-on .comp-chr-fill { width:7%; }
+
+.comp-scale { display:flex; justify-content:space-between; font-family:var(--mono); font-size:.62rem; color:var(--faint); letter-spacing:.04em; }
+
+.comp-counter {
+  display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+  margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--hair);
+}
+.comp-counter-item {
+  display:flex; align-items:baseline; gap:.8rem;
+  padding:.85rem 1.1rem; background:var(--bg); border:1px solid var(--hair-2); border-radius:4px;
+}
+.comp-counter-num {
+  font-family:var(--mono); font-size:2rem; font-weight:600; line-height:1;
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+  min-width:1.5ch; text-align:right;
+}
+.comp-counter-item.pd .comp-counter-num { color:var(--pd); }
+.comp-counter-item.sz .comp-counter-num { color:var(--sz); }
+.comp-counter-lbl {
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+  line-height:1.3;
+}
+
+.comp-replay-row { margin-top:1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+.comp-replay {
+  border:1px solid var(--hair-2); background:var(--bg); border-radius:3px;
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.06em; text-transform:uppercase;
+  padding:.6rem 1.1rem; cursor:pointer; color:var(--text);
+  transition:background .15s, color .15s, border-color .15s;
+  display:inline-flex; align-items:center; gap:.5rem;
+}
+.comp-replay:hover { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.comp-replay:disabled { opacity:.4; cursor:default; }
+.comp-replay-hint { font-family:var(--mono); font-size:.7rem; color:var(--faint); letter-spacing:.04em; }
+
+.comp-legend { margin-top:2rem; display:flex; flex-wrap:wrap; gap:1.5rem; padding-top:1.5rem; border-top:1px solid var(--hair); }
+.comp-leg-item { display:flex; align-items:center; gap:.6rem; font-size:.875rem; color:var(--muted); }
+.comp-leg-dot  { width:10px; height:10px; flex-shrink:0; border-radius:2px; }
+.comp-leg-dot.a { background:var(--pd); }
+.comp-leg-dot.b { background:var(--sz-soft); border:1px dashed var(--sz); }
+.comp-leg-dot.c { background:var(--sz); }
+.comp-conversion {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1.25rem; margin-top:2.5rem;
+}
+.comp-conv-cell { padding:1.75rem; background:var(--bg); border:1px solid var(--hair-2); border-radius:6px; }
+.comp-conv-big { font-family:var(--mono); font-size:2.25rem; font-weight:500; line-height:1; margin-bottom:.5rem; letter-spacing:-.02em; }
+.comp-conv-big.pd { color:var(--pd); }
+.comp-conv-big.sz { color:var(--sz); }
+.comp-conv-text { font-size:.95rem; color:var(--muted); line-height:1.55; }
+.comp-conv-cav  { font-family:var(--mono); font-size:.7rem; color:var(--faint); display:block; margin-top:.4rem; }
+
+/* ════════════════════════
+   SYNTHESIS
+════════════════════════ */
+#synthesis { border-bottom:1px solid var(--hair-2); }
+.syn-table {
+  width:100%; border-collapse:collapse;
+  border:1px solid var(--hair-2); border-radius:6px;
+  overflow:hidden;
+  margin-top:2.5rem;
+}
+.syn-table th {
+  background:var(--ink); color:var(--bg);
+  font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.06em;
+  text-transform:uppercase; padding:.85rem 1.25rem; text-align:left;
+}
+.syn-table td { padding:1rem 1.25rem; font-size:.95rem; border-top:1px solid var(--hair); vertical-align:top; color:var(--text); }
+.syn-table tr:nth-child(even) td { background:var(--surface); }
+.syn-table .pd-cell { color:var(--pd); font-weight:500; }
+.syn-table .sz-cell { color:var(--sz); font-weight:500; }
+
+/* ════════════════════════
+   CONCLUSION
+════════════════════════ */
+#conclusion {
+  background:var(--ink); color:var(--bg);
+  border-bottom:1px solid var(--ink);
+}
+#conclusion .sec-tag { border-color:rgba(255,255,255,.18); color:rgba(255,255,255,.6); }
+.concl-quote {
+  font-family:var(--display); font-size:clamp(1.4rem,2.8vw,2rem);
+  font-weight:500; letter-spacing:-.015em;
+  line-height:1.35; max-width:780px; margin:2rem auto 3rem;
+  text-wrap:balance;
+}
+.concl-quote em { font-style:italic; color:var(--amber); font-weight:500; }
+.verdict { display:flex; gap:4rem; justify-content:center; flex-wrap:wrap; }
+.verdict-item { text-align:center; }
+.verdict-marks { font-family:var(--mono); font-size:1.1rem; margin-bottom:.4rem; letter-spacing:.1em; }
+.verdict-marks.pd { color:var(--pd); }
+.verdict-marks.sz { color:var(--sz); }
+.verdict-lbl { font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.5); }
+
+/* ════════════════════════
+   REFERENCES
+════════════════════════ */
+#references { padding:3rem 2.5rem; }
+#references details summary {
+  font-family:var(--mono); font-size:.78rem; letter-spacing:.06em;
+  text-transform:uppercase; cursor:pointer; padding:.75rem 0;
+  border-bottom:1px solid var(--hair); color:var(--muted);
+  list-style:none;
+}
+#references details summary:hover { color:var(--text); }
+.ref-list { padding:1.5rem 0; font-size:.875rem; color:var(--muted); line-height:1.9; }
+.ref-list p { margin-bottom:.2rem; }
+
+/* ════════════════════════
+   FOOTER
+════════════════════════ */
+footer {
+  border-top:1px solid var(--hair-2); padding:1.25rem 2.5rem;
+  display:flex; justify-content:space-between; align-items:center;
+  font-family:var(--mono); font-size:.72rem; color:var(--muted);
+  letter-spacing:.04em;
+}
+footer a { color:var(--text); text-decoration:none; }
+footer a:hover { text-decoration:underline; }
+
+/* ════════════════════════
+   MOBILE
+════════════════════════ */
+@media (max-width:768px) {
+  nav { padding:0 1.25rem; }
+  .nav-links { display:none; }
+  section { padding:4rem 1.25rem; }
+  #hero { padding: 7rem 1.25rem 4rem; min-height:auto; }
+  .hero-sub { font-size:1.15rem; }
+  .bm-types, .criteria { grid-template-columns:1fr; }
+  .criterion { padding-left:1.25rem; }
+  .tl-mini { padding:1rem 1rem .75rem; }
+  .tl-stack { padding:.5rem 1rem 1rem 3rem; }
+  .tl-spine { left:1.4rem; }
+  .tl-ev-dot { left:-1.6rem; }
+  .tl-ev { opacity:1 !important; transform:none !important; }
+  .tl-ev.nonspec { opacity:.55 !important; }
+  .tl-sec-ftr { grid-template-columns:1fr; }
+  .trs-row { flex-wrap:wrap; }
+  .trs-lbl { width:100%; }
+  .comp-counter { grid-template-columns:1fr; }
+  .comp-conversion { grid-template-columns:1fr; }
+  .verdict { gap:2rem; }
+  .syn-table { font-size:.82rem; }
+  footer { flex-direction:column; gap:.5rem; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-brand" href="#hero">Stage-Linkage</a>
+  <div class="nav-links">
+    <a href="#framework">Framework</a>
+    <a href="#pd">Parkinson's</a>
+    <a href="#scz">Schizophrenia</a>
+    <a href="#asymmetry">Asymmetry</a>
+    <a href="#synthesis">Synthesis</a>
+  </div>
+</nav>
+
+
+<!-- ════════ HERO ════════ -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow reveal">In vivo biomarker research · essay</div>
+
+    <h1 class="hero-title reveal d1">
+      Stage-linkage<br>and its <span class="red">limits</span>
+    </h1>
+    <p class="hero-sub reveal d2">Parkinson's disease vs. schizophrenia.</p>
+
+    <p class="hero-thesis reveal d2">
+      <span class="hero-thesis-label">Core argument</span>
+      Biomarker research advances understanding of aetiopathogenesis when it connects a plausible biological mechanism to identifiable stages of illness course. Two disorders, two architectures, one framework, and a striking asymmetry in what it reveals.
+    </p>
+  </div>
+</section>
+
+
+<!-- ════════ QUESTION ════════ -->
+<section id="question">
+  <div class="container">
+    <div class="sec-tag amb reveal">The central question</div>
+    <h2 class="sec-h reveal d1">When does a biomarker actually explain a disease?</h2>
+    <p class="sec-body reveal d1">A biomarker associated with a diagnosis may reflect a causal process, or something more peripheral. Most candidate biomarkers establish group-level associations without revealing which of these categories applies.</p>
+
+    <div class="bm-types reveal d2">
+      <div class="bm-type">
+        <div class="bm-type-label ct">Contributory</div>
+        <p>The biomarker tracks a mechanism that amplifies pathology already underway. Upstream of progression, causally implicated.</p>
+      </div>
+      <div class="bm-type">
+        <div class="bm-type-label cp">Compensatory</div>
+        <p>A biological response to pathology, present because of the disease and not driving it. Tracking it can mislead if mistaken for a cause.</p>
+      </div>
+      <div class="bm-type">
+        <div class="bm-type-label cq">Consequential</div>
+        <p>Tracks severity without influencing it. A state marker. Real and measurable, but not where the disease starts.</p>
+      </div>
+    </div>
+
+    <div class="callout reveal d2">
+      <div class="callout-label">This essay asks</div>
+      <p>What distinguishes a biomarker that stages a disease from one that merely rides alongside it? Parkinson's disease (PD) and schizophrenia (SCZ) are examined as contrasting cases.</p>
+    </div>
+  </div>
+</section>
+<hr class="rule">
+
+
+<!-- ════════ FRAMEWORK ════════ -->
+<section id="framework">
+  <div class="container">
+    <div class="sec-tag amb reveal">Evaluative lens</div>
+    <h2 class="sec-h reveal d1">Three criteria for stage-linkage</h2>
+    <p class="sec-body reveal d1">Each criterion is progressively harder to satisfy. Satisfying all three raises evidence above group-level association without establishing causation. These criteria are a conceptual tool for grading evidence, not a formal scale.</p>
+
+    <div class="criteria reveal d2">
+      <div class="criterion">
+        <div class="crit-num">01 / Mechanism</div>
+        <div class="crit-title">Plausible mechanism</div>
+        <p class="crit-body">The biomarker identifies a credible biological mechanism linked to the disorder, not just a statistical correlation.</p>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">02 / Detection</div>
+        <div class="crit-title">Cross-stage detection</div>
+        <p class="crit-body">Detectable at relevant illness stages, including prodromal states where possible and not only at diagnosis.</p>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">03 / Tracking</div>
+        <div class="crit-title">Longitudinal tracking</div>
+        <p class="crit-body">At its strongest, the biomarker tracks or precedes clinical change over time, predicting disease progression rather than merely accompanying it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="rule">
+
+
+<!-- ════════ PARKINSON'S ════════ -->
+<section id="pd">
+  <div class="container">
+    <div class="sec-tag pd reveal">03 · Parkinson's disease</div>
+    <h2 class="sec-h reveal d1">A biomarker that stages.</h2>
+    <p class="sec-body reveal d1">Parkinson's disease (PD) offers what stage-linkage requires: a candidate molecular pathway and a clinically recognisable prodromal phase in which that pathway can be tracked before diagnosis. Among the molecular processes implicated in PD, α-synuclein aggregation is the focus here. It is the only pathway with a biologically validated in vivo biomarker integrated into a research staging system.</p>
+
+    <!-- PD Timeline -->
+    <div class="tl-section" id="pdSection">
+      <div class="tl-sec-hdr">
+        <div class="tl-sec-title pd">Parkinson's disease (PD) · prodromal timeline</div>
+        <div class="tl-sec-span">−20 yr → diagnosis</div>
+      </div>
+
+      <div class="tl-mini">
+        <div class="tl-mini-track">
+          <span class="tl-mini-event" style="left:0%" data-mark="amber"></span>
+          <span class="tl-mini-event" style="left:45%" data-mark="amber"></span>
+          <span class="tl-mini-event" style="left:70%" data-mark="pd"></span>
+          <span class="tl-mini-event" style="left:90%" data-mark="amber"></span>
+          <span class="tl-mini-event" style="left:100%" data-mark="dx"></span>
+        </div>
+        <div class="tl-mini-axis">
+          <span>−20 yr</span>
+          <span>Year 0 · diagnosis</span>
+        </div>
+      </div>
+
+      <div class="tl-stack">
+        <div class="tl-spine"></div>
+
+        <article class="tl-ev pd-ev" data-year="-20">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">−<span class="tl-ev-num" data-count-to="20">0</span> yr <span class="tl-ev-yr-sub">before motor diagnosis</span></div>
+          <div class="tl-ev-name">Olfactory loss (hyposmia)</div>
+          <div class="tl-ev-sub">First detectable signal. Often attributed to age or allergies. Can begin more than 20 years before motor onset. By −13 yr: constipation and colour vision changes also emerge, often subclinical.</div>
+        </article>
+
+        <article class="tl-ev pd-ev" data-year="-11">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">−<span class="tl-ev-num" data-count-to="11">0</span> yr <span class="tl-ev-yr-sub">before motor diagnosis</span></div>
+          <div class="tl-ev-name">REM sleep behaviour disorder (RBD)</div>
+          <div class="tl-ev-sub">The body acts out dreams during sleep: kicking, talking, reaching. The strongest single predictor of phenoconversion to Parkinson's disease (PD). By −9 yr: subtle motor signs and urinary dysfunction also appear.</div>
+        </article>
+
+        <article class="tl-ev saa" data-year="-6">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">−<span class="tl-ev-num" data-count-to="6">0</span> yr <span class="tl-ev-yr-sub">before motor diagnosis</span></div>
+          <div class="tl-ev-name">α-synuclein seed amplification assay (SAA) detectable</div>
+          <div class="tl-ev-sub">A test detects misfolded α-synuclein protein in cerebrospinal fluid. Present in ~86% of enriched prodromal cohorts. A categorical marker. It identifies the type of pathology, not a countdown to diagnosis.</div>
+        </article>
+
+        <article class="tl-ev pd-ev" data-year="-2">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">−<span class="tl-ev-num" data-count-to="2">0</span> yr <span class="tl-ev-yr-sub">before motor diagnosis</span></div>
+          <div class="tl-ev-name">Bradykinesia, rigidity and tremor emerge</div>
+          <div class="tl-ev-sub">Cardinal motor symptoms appear in sequence: bradykinesia (slowness) first at ~−5 yr, then rigidity at ~−3 yr, tremor at ~−2 yr. The biology has been present for over a decade.</div>
+        </article>
+
+        <article class="tl-ev dx pd-ev" data-year="0">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">Year 0</div>
+          <div class="tl-ev-name">Motor diagnosis</div>
+          <div class="tl-ev-sub">Clinical Parkinson's disease (PD) threshold. The biology started long before this moment.</div>
+        </article>
+      </div>
+
+      <div class="tl-sec-ftr">
+        <div class="tl-ftr-rate pd">~80–90%</div>
+        <div class="tl-ftr-text">of people with REM sleep behaviour disorder (RBD) phenoconvert to Parkinson's disease (PD) or a related alpha-synucleinopathy within 20 years. The most reliable prodromal predictor available.</div>
+      </div>
+    </div>
+
+    <!-- PD Evidence -->
+    <div class="depth-wrap reveal" id="pdDepth">
+      <div class="depth-hdr">
+        <div class="depth-hdr-title">Key evidence</div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)" id="pdDepthNote">General reading</span>
+          <button class="depth-toggle-btn" onclick="toggleDepth('pdDepth','pdDepthNote','pdDepthBtn')" id="pdDepthBtn">+ research detail</button>
+        </div>
+      </div>
+      <div class="depth-items">
+        <div class="depth-item">
+          <div class="depth-surface"><p class="depth-surface-text">A test can detect Parkinson's disease (PD) hiding in the body years before any motor symptoms appear, before the person has any idea. It works by detecting misfolded protein in cerebrospinal fluid, not by measuring symptoms.</p></div>
+          <div class="depth-tech"><div class="depth-tech-label">Research detail</div><p class="depth-tech-text">α-synuclein seed amplification assay (SAA) demonstrated prodromal sensitivity in participants with REM sleep behaviour disorder (RBD) and hyposmia prior to motor onset. Present in ~86% of enriched prodromal cohort.<span class="depth-cite">Siderowf et al. (2023), Lancet Neurology · 87.7% sensitivity, 96% specificity in established PD.</span></p></div>
+        </div>
+        <div class="depth-item">
+          <div class="depth-surface"><p class="depth-surface-text">The test doesn't just detect Parkinson's disease (PD); it can distinguish it from similar-looking conditions with near-perfect accuracy, even in patients not yet diagnosed.</p></div>
+          <div class="depth-tech"><div class="depth-tech-label">Research detail</div><p class="depth-tech-text">Bernhardt et al. (2025): quantitative Lewy-fold-specific SAA distinguished PD-associated alpha-synucleinopathy from multiple system atrophy (MSA) with 100% specificity in 170 participants.<span class="depth-cite">Bernhardt et al. (2025), Acta Neuropathologica.</span></p></div>
+        </div>
+        <div class="depth-item">
+          <div class="depth-surface"><p class="depth-surface-text">More recently, researchers showed the test can predict how quickly someone will decline, not just whether they have the disease but how it will progress.</p></div>
+          <div class="depth-tech"><div class="depth-tech-label">Research detail</div><p class="depth-tech-text">Orrú et al. (2025): SAA kinetic measures predicted clinical progression including cognitive decline in 1,631 participants. Bernhardt et al. (2025): quantitative Lewy-fold scores increased alongside clinical worsening over time.<span class="depth-cite">Orrú et al. (2025), Lancet Neurology.</span></p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout pd-callout reveal">
+      <div class="callout-label">Caveat · LRRK2 subtype</div>
+      <p>SAA positivity drops to 34.7% in LRRK2 gene mutation carriers with normal olfaction, compared to ~88% in the broader cohort. Since LRRK2 mutations are the most common monogenic cause of Parkinson's disease (PD), stage-linkage applies to a biologically defined subtype, not to PD as a whole clinical entity.</p>
+    </div>
+  </div>
+</section>
+<hr class="rule">
+
+
+<!-- ════════ SCHIZOPHRENIA ════════ -->
+<section id="scz">
+  <div class="container">
+    <div class="sec-tag sz reveal">04 · Schizophrenia</div>
+    <h2 class="sec-h reveal d1">A pathway that converges.</h2>
+    <p class="sec-body reveal d1">In schizophrenia (SCZ), the strongest in vivo biomarker evidence concerns elevated presynaptic striatal dopamine. It is a credible mechanism in established illness, but it occupies a structurally different position. As a "final common pathway," it reflects the convergent endpoint of multiple upstream trajectories. A biomarker positioned downstream of diverse aetiologies cannot distinguish between the trajectories that converge on it.</p>
+
+    <!-- SCZ Timeline -->
+    <div class="tl-section" id="sczSection">
+      <div class="tl-sec-hdr">
+        <div class="tl-sec-title sz">Schizophrenia (SCZ) · prodromal timeline</div>
+        <div class="tl-sec-span">−7 yr → diagnosis</div>
+      </div>
+
+      <div class="tl-mini">
+        <div class="tl-mini-track">
+          <span class="tl-mini-event" style="left:28.6%" data-mark="amber"></span>
+          <span class="tl-mini-event" style="left:74.3%" data-mark="sz"></span>
+          <span class="tl-mini-event" style="left:100%" data-mark="dx"></span>
+        </div>
+        <div class="tl-mini-axis">
+          <span>−7 yr</span>
+          <span>Year 0 · first-episode psychosis</span>
+        </div>
+      </div>
+
+      <div class="tl-stack">
+        <div class="tl-spine"></div>
+
+        <article class="tl-ev nonspec sz-ev" data-year="-5">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">−<span class="tl-ev-num" data-count-to="5">0</span> yr <span class="tl-ev-yr-sub">before first-episode psychosis</span></div>
+          <div class="tl-ev-name">Non-specific prodrome</div>
+          <div class="tl-ev-sub">Anxiety, depression, sleep disturbance, social withdrawal. Can appear 2 to 10 years before first-episode psychosis (FEP). Heavily overlaps with depression and anxiety disorders. No biological anchor. Faded here because it is not a reliable biomarker signal.</div>
+        </article>
+
+        <article class="tl-ev chr sz-ev" data-year="-1.8">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">−<span class="tl-ev-num" data-count-to="2">0</span> yr <span class="tl-ev-yr-sub">before first-episode psychosis</span></div>
+          <div class="tl-ev-name">Clinical high risk for psychosis (CHR-P) window</div>
+          <div class="tl-ev-sub">Attenuated psychotic symptoms, identified with a specialist interview. Mean duration: 21.6 months before first-episode psychosis (FEP). 36% of CHR-P individuals develop psychosis within 3 years; 64% do not convert. No equivalent of the α-synuclein seed amplification assay (SAA) exists for schizophrenia.</div>
+        </article>
+
+        <article class="tl-ev dx sz-ev" data-year="0">
+          <div class="tl-ev-dot"></div>
+          <div class="tl-ev-yr">Year 0</div>
+          <div class="tl-ev-name">First-episode psychosis (FEP)</div>
+          <div class="tl-ev-sub">Clinical schizophrenia (SCZ) diagnosis. The clinically operationalised prodrome covers only the final ~2 years. There is no biologically anchored staging system equivalent to NSD-ISS in PD.</div>
+        </article>
+      </div>
+
+      <div class="tl-sec-ftr">
+        <div class="tl-ftr-rate sz">~36%</div>
+        <div class="tl-ftr-text">of clinical high risk for psychosis (CHR-P) individuals develop psychosis within 3 years (Fusar-Poli et al., 2012; n=2,502).
+          <span class="tl-ftr-cav">Contemporary multi-site cohorts report lower rates (~22%), likely reflecting broader ascertainment.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRS Signal -->
+    <div class="trs-wrap reveal" id="trsWrap">
+      <div class="c-head" style="padding:1.5rem 1.75rem">
+        <div class="c-title sz" style="font-family:var(--display);font-size:1.25rem;font-weight:600;letter-spacing:-.01em;color:var(--sz)">The dopamine signal: what happens when you look closer.</div>
+      </div>
+      <div class="trs-inner">
+        <p class="trs-setup">Elevated striatal dopamine is the strongest in vivo finding in established schizophrenia (SCZ). The effect is real and <strong>meaningfully large</strong> across 21 positron emission tomography (PET) studies in one landmark meta-analysis.<br><br>Then someone asked: what about the patients for whom antipsychotics don't work?</p>
+        <div class="trs-g-note">What is "g"? Hedges' g measures how big a difference actually is. Below 0.2: barely detectable. Around 0.5: moderate. <em>0.65 is large and consistent.</em></div>
+        <div class="trs-bars">
+          <div class="trs-row" id="rowAll">
+            <div class="trs-lbl lit">All patients</div>
+            <div class="trs-track"><div class="trs-fill f-all" id="fillAll" style="width:65%">g = 0.65</div></div>
+            <div class="trs-ann show">21 PET studies<br>983 patients</div>
+          </div>
+          <div class="trs-row" id="rowNon" style="display:none">
+            <div class="trs-lbl" id="lblNon">Non-resistant (63%)</div>
+            <div class="trs-track"><div class="trs-fill f-non" id="fillNon">g ≈ 0.87</div></div>
+            <div class="trs-ann" id="annNon">responds to<br>antipsychotics</div>
+          </div>
+          <div class="trs-row" id="rowTRS" style="display:none">
+            <div class="trs-lbl" id="lblTRS">Treatment-resistant (TRS)</div>
+            <div class="trs-track"><div class="trs-fill f-trs" id="fillTRS">p &gt; .3 · no signal</div></div>
+            <div class="trs-ann" id="annTRS">no difference<br>from controls</div>
+          </div>
+        </div>
+        <div class="trs-callout" id="trsCallout">
+          <div class="trs-callout-num">37%</div>
+          <div class="trs-callout-text">of people with schizophrenia (SCZ) have <strong>treatment-resistant schizophrenia (TRS)</strong>. In this group, dopamine synthesis capacity does not differ from healthy controls at all.</div>
+        </div>
+        <div class="trs-btn-row">
+          <button class="trs-btn" id="trsSplitBtn" onclick="doSplit()">◈ Separate treatment-resistant patients</button>
+          <button class="trs-btn reset-btn" id="trsResetBtn" onclick="doReset()" style="display:none">← Reset</button>
+        </div>
+        <div class="trs-punchline" id="trsPunchline">
+          The signal you've been looking at only exists in patients for whom treatment already works. For <strong>37% of people with schizophrenia</strong>, dopamine isn't elevated at all. It sits right where controls are.
+          <div class="trs-deep" id="trsDeep">Brugger et al. (2020): meta-analysis of variance, 65 studies, 983 patients. Overall Hedges' g = 0.65, p = .004. TRS subgroup: dopamine synthesis capacity p &gt; .3 vs controls. Effect carried entirely by treatment-responsive patients. Diniz et al. (2023): TRS prevalence ~37%, 50 studies, n ≈ 30,000.</div>
+        </div>
+        <button class="trs-deep-btn" id="trsDeepBtn" onclick="document.getElementById('trsDeep').classList.toggle('open')">+ research detail</button>
+      </div>
+    </div>
+
+    <div class="callout sz-callout reveal">
+      <div class="callout-label">The structural problem</div>
+      <p>A biomarker positioned downstream of diverse aetiologies cannot distinguish between the trajectories that converge on it. Stage-linkage assumes a process with a traceable origin. A final common pathway offers none, making sequential detection across stages structurally implausible rather than merely undemonstrated.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ ASYMMETRY ════════ -->
+<section id="asymmetry">
+  <div class="container">
+    <div class="sec-tag amb reveal">05 · The asymmetry</div>
+    <h2 class="sec-h reveal d1">How far back can we see it coming?</h2>
+    <p class="comp-intro reveal d1">Both bars represent the same 25-year window before clinical onset. <strong>What fills the bar is what we can detect.</strong></p>
+
+    <div class="comp-ticker reveal d1">
+      <div class="comp-ticker-label">Years before clinical onset</div>
+      <div class="comp-ticker-val" id="compTicker"><span class="yr-sign">−</span><span id="compTickerNum">25</span><span class="yr-unit">yr</span></div>
+    </div>
+
+    <div class="comp-row reveal d2">
+      <div class="comp-row-lbl pd">Parkinson's disease (PD) · α-synuclein seed amplification assay (SAA)</div>
+      <div class="comp-bar">
+        <div class="comp-seg comp-pd-fill">Detectable prodromal signal, up to 20 years</div>
+      </div>
+      <div class="comp-scale"><span>−25 yr</span><span>−20 yr</span><span>−15 yr</span><span>−10 yr</span><span>−5 yr</span><span>Year 0</span></div>
+    </div>
+
+    <div class="comp-row reveal d2">
+      <div class="comp-row-lbl sz">Schizophrenia (SCZ) · striatal dopamine / CHR-P</div>
+      <div class="comp-bar">
+        <div class="comp-seg comp-ns-fill"></div>
+        <div class="comp-seg comp-chr-fill">CHR-P</div>
+      </div>
+      <div class="comp-scale"><span>−25 yr</span><span>−20 yr</span><span>−15 yr</span><span>−10 yr</span><span>−5 yr</span><span>Year 0</span></div>
+    </div>
+
+    <div class="comp-counter reveal">
+      <div class="comp-counter-item pd">
+        <span class="comp-counter-num" id="compPdCount">0</span>
+        <span class="comp-counter-lbl">PD signals detectable</span>
+      </div>
+      <div class="comp-counter-item sz">
+        <span class="comp-counter-num" id="compSzCount">0</span>
+        <span class="comp-counter-lbl">SCZ signals detectable</span>
+      </div>
+    </div>
+
+    <div class="comp-replay-row reveal">
+      <button class="comp-replay" id="compReplay">↻ Replay</button>
+      <span class="comp-replay-hint">Watch both tracks paint over 4 seconds. The eye learns the silence.</span>
+    </div>
+
+    <div class="comp-legend reveal">
+      <div class="comp-leg-item"><div class="comp-leg-dot a"></div>Biologically anchored prodromal signal (PD)</div>
+      <div class="comp-leg-item"><div class="comp-leg-dot b"></div>Non-specific clinical prodrome (SCZ), not biologically anchored</div>
+      <div class="comp-leg-item"><div class="comp-leg-dot c"></div>Clinical high risk for psychosis (CHR-P) window (SCZ)</div>
+    </div>
+
+    <div class="comp-conversion reveal">
+      <div class="comp-conv-cell">
+        <div class="comp-conv-big pd">~80–90%</div>
+        <div class="comp-conv-text">of people with REM sleep behaviour disorder (RBD) phenoconvert to Parkinson's disease (PD) within 20 years. A high-confidence prodromal marker.</div>
+      </div>
+      <div class="comp-conv-cell">
+        <div class="comp-conv-big sz">~36%</div>
+        <div class="comp-conv-text">of clinical high risk for psychosis (CHR-P) individuals develop psychosis within 3 years. 64% do not convert.
+          <span class="comp-conv-cav">Fusar-Poli et al. (2012), n=2,502. Contemporary cohorts: ~22%.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ SYNTHESIS ════════ -->
+<section id="synthesis">
+  <div class="container">
+    <div class="sec-tag amb reveal">06 · Synthesis</div>
+    <h2 class="sec-h reveal d1">Architecture determines the ceiling.</h2>
+    <p class="sec-body reveal d1">The asymmetry between the two programmes reflects their position within each disorder's causal architecture, not investigative effort. Where pathology converges from multiple upstream origins, the most informative finding may not be a staged mechanism but the demonstration that no single mechanism organises the disorder.</p>
+
+    <table class="syn-table reveal d2">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Parkinson's Disease (PD)</th>
+          <th>Schizophrenia (SCZ)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Causal structure</td>
+          <td class="pd-cell">Staged progression</td>
+          <td class="sz-cell">Convergent pathways</td>
+        </tr>
+        <tr>
+          <td>Biomarker role</td>
+          <td class="pd-cell">Primary contributory</td>
+          <td class="sz-cell">Consequential state marker</td>
+        </tr>
+        <tr>
+          <td>Biological staging</td>
+          <td class="pd-cell">Neuronal α-synuclein Disease Integrated Staging System (NSD-ISS)</td>
+          <td class="sz-cell">Clinical stages only (CHR-P → first-episode psychosis → established illness)</td>
+        </tr>
+        <tr>
+          <td>Subtype challenge</td>
+          <td class="pd-cell">LRRK2 carriers (~34.7% SAA positive); fall outside the synuclein model</td>
+          <td class="sz-cell">Treatment-resistant schizophrenia (TRS) (~37%); dopamine signal absent</td>
+        </tr>
+        <tr>
+          <td>Criteria met</td>
+          <td class="pd-cell">All three: mechanism, cross-stage, longitudinal</td>
+          <td class="sz-cell">Criterion 1 only: mechanism in established illness</td>
+        </tr>
+        <tr>
+          <td>What it reveals</td>
+          <td class="pd-cell">A mechanism that can be staged</td>
+          <td class="sz-cell">That no single mechanism organises the disorder</td>
+        </tr>
+        <tr>
+          <td>Shared limit</td>
+          <td colspan="2" style="text-align:center;font-family:var(--mono);font-size:.85rem">Association ≠ causal sufficiency, for both disorders</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ════════ CONCLUSION ════════ -->
+<section id="conclusion">
+  <div class="container" style="text-align:center">
+    <div class="sec-tag reveal">Conclusion</div>
+    <p class="concl-quote reveal d1">A disorder's causal architecture sets the ceiling on what biomarker research can demonstrate. Where pathology converges from multiple origins, the most informative finding may be that <em>no single mechanism organises the disorder</em>.</p>
+    <div class="verdict reveal d2">
+      <div class="verdict-item">
+        <div class="verdict-marks pd">● ● ●</div>
+        <div class="verdict-lbl">PD · all 3 criteria</div>
+      </div>
+      <div class="verdict-item">
+        <div class="verdict-marks sz">● ○ ○</div>
+        <div class="verdict-lbl">SCZ · only the 1st</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════ REFERENCES ════════ -->
+<section id="references">
+  <div class="container narrow">
+    <details>
+      <summary>References</summary>
+      <div class="ref-list">
+        <p>Abi-Dargham et al. (2023). Candidate biomarkers in psychiatric disorders. <em>World Psychiatry</em>, 22(2), 236–262.</p>
+        <p>Bernhardt et al. (2025). A quantitative Lewy-fold-specific α-synuclein seed amplification assay as a progression marker for Parkinson's disease. <em>Acta Neuropathologica</em>, 149(1), 20.</p>
+        <p>Blauwendraat et al. (2020). The genetic architecture of Parkinson's disease. <em>Lancet Neurology</em>, 19(2), 170–178.</p>
+        <p>Brugger et al. (2020). Heterogeneity of striatal dopamine function in schizophrenia. <em>Biological Psychiatry</em>, 87(3), 215–224.</p>
+        <p>Diniz et al. (2023). Treatment resistance in schizophrenia. <em>Rev. Bras. Psiquiatria</em>, 45(5), 448–458.</p>
+        <p>Eisenberg et al. (2025). Genetic risk for treatment-resistant schizophrenia and dopamine synthesis capacity. <em>Molecular Psychiatry</em>, 30(6), 2645–2652.</p>
+        <p>Fusar-Poli et al. (2012). Predicting psychosis. <em>Archives of General Psychiatry</em>, 69(3), 220–229.</p>
+        <p>Howes et al. (2020). Glutamatergic and dopaminergic function at clinical high risk for psychosis. <em>Neuropsychopharmacology</em>, 45(4), 641–648.</p>
+        <p>Howes &amp; Kapur (2009). The dopamine hypothesis of schizophrenia: Version III. <em>Schizophrenia Bulletin</em>, 35(3), 549–562.</p>
+        <p>McCutcheon et al. (2021). Dopamine and glutamate in individuals at high risk for psychosis. <em>World Psychiatry</em>, 20(3), 405–416.</p>
+        <p>McCutcheon et al. (2018). Defining the locus of dopaminergic dysfunction in schizophrenia. <em>Schizophrenia Bulletin</em>, 44(6), 1301–1311.</p>
+        <p>Orrú et al. (2025). Diagnostic and prognostic value of α-synuclein SAA kinetic measures in Parkinson's disease. <em>Lancet Neurology</em>, 24(7), 580–590.</p>
+        <p>Postuma &amp; Berg (2019). Prodromal Parkinson's disease. <em>Movement Disorders</em>, 34(5), 665–675.</p>
+        <p>Siderowf et al. (2023). Assessment of heterogeneity among participants in the PPMI cohort using α-synuclein seed amplification. <em>Lancet Neurology</em>, 22(5), 407–417.</p>
+        <p>Simuni et al. (2024). A biological definition of neuronal α-synuclein disease. <em>Lancet Neurology</em>, 23(2), 178–190.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <span>essay &amp; site by @jelliwolf · 2026</span>
+  <span style="color:var(--faint)">Stage-Linkage &amp; Its Limits · In Vivo Biomarker Research</span>
+</footer>
+
+
+<script>
+/* ── PROGRESS BAR ── */
+const prog = document.getElementById('prog');
+window.addEventListener('scroll', () => {
+  prog.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+}, { passive: true });
+
+/* ── SCROLL REVEAL ── */
+const revObs = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+/* ── TIMELINE EVENTS: ignite on enter + count-up year ── */
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+function animateCount(el, to, duration = 700) {
+  const start = performance.now();
+  const from = 0;
+  const sign = to < 0 ? -1 : 1;
+  const target = Math.abs(to);
+  function frame(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const v = Math.round(from + (target - from) * easeOut(t)) * sign;
+    el.textContent = Math.abs(v);
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = Math.abs(to);
+  }
+  requestAnimationFrame(frame);
+}
+
+const tlEvObs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const ev = e.target;
+    if (ev.classList.contains('counted')) return;
+    ev.classList.add('visible', 'counted');
+    const numEl = ev.querySelector('.tl-ev-num');
+    if (numEl) {
+      const to = parseInt(numEl.dataset.countTo, 10);
+      if (!isNaN(to)) animateCount(numEl, to, 750);
+    }
+  });
+}, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+
+document.querySelectorAll('.tl-ev').forEach(ev => tlEvObs.observe(ev));
+
+/* ── BIOMARKER TYPES: stagger + focus-dim ── */
+const bmGrid = document.querySelector('.bm-types');
+if (bmGrid) {
+  const bmObs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting) {
+        bmGrid.classList.add('in');
+        bmObs.disconnect();
+      }
+    });
+  }, { threshold: 0.2 });
+  bmObs.observe(bmGrid);
+
+  // Tap focus on mobile (no hover): tap a card to focus, tap again or outside to clear
+  bmGrid.querySelectorAll('.bm-type').forEach(card => {
+    card.addEventListener('click', e => {
+      if (window.matchMedia('(hover: hover)').matches) return;
+      const wasFocused = card.classList.contains('focused');
+      bmGrid.querySelectorAll('.bm-type').forEach(c => c.classList.remove('focused'));
+      bmGrid.classList.remove('has-focus');
+      if (!wasFocused) {
+        card.classList.add('focused');
+        bmGrid.classList.add('has-focus');
+        e.stopPropagation();
+      }
+    });
+  });
+  document.addEventListener('click', () => {
+    bmGrid.querySelectorAll('.bm-type').forEach(c => c.classList.remove('focused'));
+    bmGrid.classList.remove('has-focus');
+  });
+}
+
+/* ── DEPTH TOGGLE ── */
+const depthState = {};
+function toggleDepth(wrapId, noteId, btnId) {
+  depthState[wrapId] = !depthState[wrapId];
+  const on = depthState[wrapId];
+  document.querySelectorAll('#' + wrapId + ' .depth-tech').forEach(t => t.classList.toggle('open', on));
+  document.getElementById(btnId).textContent  = on ? '− hide detail' : '+ research detail';
+  document.getElementById(btnId).classList.toggle('on', on);
+  document.getElementById(noteId).textContent = on ? 'General + research detail' : 'General reading';
+}
+
+/* ── TRS ── */
+let trsSplit = false;
+function doSplit() {
+  if (trsSplit) return;
+  trsSplit = true;
+  document.getElementById('trsSplitBtn').disabled = true;
+  const fAll = document.getElementById('fillAll');
+  fAll.style.transition = 'width .6s,opacity .4s';
+  fAll.style.opacity = '0'; fAll.style.width = '0';
+  setTimeout(() => {
+    document.getElementById('rowAll').style.display = 'none';
+    document.getElementById('rowNon').style.display = 'flex';
+    document.getElementById('rowTRS').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('lblNon').classList.add('lit');
+      document.getElementById('lblTRS').classList.add('lit');
+      document.getElementById('fillNon').style.width = '73%';
+      document.getElementById('annNon').classList.add('show');
+    }, 100);
+    setTimeout(() => {
+      document.getElementById('fillTRS').style.width = '9%';
+      document.getElementById('annTRS').classList.add('show');
+    }, 500);
+    setTimeout(() => { document.getElementById('trsCallout').classList.add('show'); }, 900);
+    setTimeout(() => {
+      document.getElementById('trsPunchline').classList.add('show');
+      document.getElementById('trsDeepBtn').classList.add('show');
+      document.getElementById('trsResetBtn').style.display = 'inline-flex';
+    }, 1100);
+  }, 600);
+}
+
+function doReset() {
+  trsSplit = false;
+  ['trsCallout','trsPunchline','trsDeep'].forEach(id => document.getElementById(id).classList.remove('show','open'));
+  document.getElementById('trsDeepBtn').classList.remove('show');
+  document.getElementById('trsResetBtn').style.display = 'none';
+  const fNon = document.getElementById('fillNon');
+  const fTRS = document.getElementById('fillTRS');
+  fNon.style.transition = 'none'; fNon.style.width = '0';
+  fTRS.style.transition = 'none'; fTRS.style.width = '0';
+  ['annNon','annTRS'].forEach(id => document.getElementById(id).classList.remove('show'));
+  ['lblNon','lblTRS'].forEach(id => document.getElementById(id).classList.remove('lit'));
+  setTimeout(() => {
+    document.getElementById('rowNon').style.display = 'none';
+    document.getElementById('rowTRS').style.display = 'none';
+    fNon.style.transition = ''; fTRS.style.transition = '';
+    const fAll = document.getElementById('fillAll');
+    fAll.style.transition = 'none'; fAll.style.opacity = '1'; fAll.style.width = '0';
+    document.getElementById('rowAll').style.display = 'flex';
+    requestAnimationFrame(() => {
+      fAll.style.transition = 'width .9s'; fAll.style.width = '65%';
+      document.getElementById('trsSplitBtn').disabled = false;
+    });
+  }, 200);
+}
+
+/* ── ASYMMETRY RACE ── */
+(function setupRace() {
+  const section = document.getElementById('asymmetry');
+  if (!section) return;
+  const tickNumEl = document.getElementById('compTickerNum');
+  const tickSignEl = section.querySelector('.yr-sign');
+  const pdCountEl = document.getElementById('compPdCount');
+  const szCountEl = document.getElementById('compSzCount');
+  const replayBtn = document.getElementById('compReplay');
+
+  const DURATION = 4000;
+  const yearToProgress = (yr) => (yr + 25) / 25;
+  const pdMilestones = [-20, -11, -6, -2].map(yearToProgress);
+  const szMilestones = [-1.8].map(yearToProgress);
+
+  let raf = null;
+  let raceStart = 0;
+  let hasRun = false;
+
+  function resetRace() {
+    cancelAnimationFrame(raf);
+    section.classList.add('race-reset');
+    section.classList.remove('race-on');
+    // also reset inline-ish state
+    tickNumEl.textContent = '25';
+    tickSignEl.textContent = '−';
+    pdCountEl.textContent = '0';
+    szCountEl.textContent = '0';
+    void section.offsetWidth; // force reflow so widths snap to 0 without animating
+    section.classList.remove('race-reset');
+  }
+
+  function tickFrame(now) {
+    const t = Math.min(1, (now - raceStart) / DURATION);
+    const yrVal = -25 + (25 * t);
+    if (yrVal >= 0) {
+      tickSignEl.textContent = '';
+      tickNumEl.textContent = '0';
+    } else {
+      tickSignEl.textContent = '−';
+      tickNumEl.textContent = Math.round(-yrVal);
+    }
+    const pdHits = pdMilestones.filter(p => t >= p).length;
+    const szHits = szMilestones.filter(p => t >= p).length;
+    if (pdCountEl.textContent !== String(pdHits)) pdCountEl.textContent = pdHits;
+    if (szCountEl.textContent !== String(szHits)) szCountEl.textContent = szHits;
+    if (t < 1) raf = requestAnimationFrame(tickFrame);
+  }
+
+  function runRace() {
+    resetRace();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        section.classList.add('race-on');
+        raceStart = performance.now();
+        raf = requestAnimationFrame(tickFrame);
+      });
+    });
+  }
+
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting && !hasRun) {
+        hasRun = true;
+        runRace();
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.35 });
+  obs.observe(section);
+
+  replayBtn.addEventListener('click', runRace);
+})();
+
+/* ── IDLE SIGNAL DECAY ── */
+  const IDLE_DELAY = 18000; // ms — maybe swap to 30000 for production
+
+  const bodyText = document.querySelectorAll(
+    '.sec-body, .hero-thesis, .tl-ev-sub, .comp-intro, .comp-conv-text,  .trs-setup, .depth-surface-text, .crit-body'
+  );
+
+  const headingText = document.querySelectorAll('.concl-quote, .sec-h');
+
+  let signalTimeout;
+
+  function triggerSignalDecay() {
+    bodyText.forEach(el => {
+      el.style.transition = 'font-weight 4s ease, filter 4s ease, opacity 4s ease';
+      el.style.fontWeight = '300';
+      el.style.filter     = 'blur(0.6px)';
+      el.style.opacity    = '0.75';
+    });
+    headingText.forEach(el => {
+      el.style.transition = 'filter 6s ease, opacity 6s ease';
+      el.style.filter     = 'blur(1.5px)';
+      el.style.opacity    = '0.6';
+    });
+  }
+
+  function resetSignal() {
+    clearTimeout(signalTimeout);
+    [...bodyText, ...headingText].forEach(el => {
+      el.style.transition = 'font-weight 0.2s ease, filter 0.2s ease, opacity 0.2s ease';
+      el.style.fontWeight = '';
+      el.style.filter     = 'none';
+      el.style.opacity    = '1';
+    });
+    signalTimeout = setTimeout(triggerSignalDecay, IDLE_DELAY);
+  }
+
+  ['mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt =>
+    window.addEventListener(evt, resetSignal, { passive: true })
+  );
+
+  resetSignal();
+
+</script>
+</body>
+</html>

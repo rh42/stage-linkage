@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Component Playground — Biomarker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #fdf8f0;
+  --surface: #f5ede0;
+  --border:  #111111;
+  --text:    #1a1208;
+  --muted:   #6b5c4a;
+  --faint:   #c8b89a;
+  --pd:      #0c6b6d;
+  --sz:      #c5392a;
+  --amber:   #c97d2e;
+  --display: 'Oswald', sans-serif;
+  --body:    'Space Grotesk', sans-serif;
+  --mono:    'IBM Plex Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--body); background:var(--bg); color:var(--text); font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+/* ── SHELL ── */
+.playground { max-width:1100px; margin:0 auto; padding:4rem 2.5rem 6rem; }
+.play-header { border-bottom:3px solid var(--border); padding-bottom:1.5rem; margin-bottom:4rem; display:flex; justify-content:space-between; align-items:baseline; }
+.play-title  { font-family:var(--display); font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; }
+.play-note   { font-family:var(--mono); font-size:.72rem; color:var(--muted); }
+.play-sec    { margin-bottom:5rem; }
+.play-lbl    { font-family:var(--mono); font-size:.68rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--amber); margin-bottom:.75rem; }
+.play-name   { font-family:var(--display); font-size:1.5rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-bottom:2rem; border-bottom:1px solid var(--faint); padding-bottom:.75rem; }
+.play-fn     { font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-top:1.25rem; letter-spacing:.04em; line-height:1.6; }
+
+.c-box { border:3px solid var(--border); box-shadow:6px 6px 0 rgba(60,35,10,.08); }
+.c-head { padding:1.5rem 2rem; border-bottom:3px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.c-title { font-family:var(--display); font-size:1.2rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+.c-title.pd { color:var(--pd); }
+.c-title.sz { color:var(--sz); }
+.c-meta  { font-family:var(--mono); font-size:.7rem; color:var(--muted); letter-spacing:.06em; }
+
+
+/* ═══════════════════════════
+   C01 — ATMOSPHERE
+═══════════════════════════ */
+.atmo-grid { display:grid; grid-template-columns:1fr 1fr; }
+.atmo-cell { padding:3rem; }
+.atmo-cell:first-child { border-right:3px solid var(--border); }
+.atmo-hl   { font-family:var(--display); font-size:clamp(2.5rem,5vw,4rem); font-weight:700; text-transform:uppercase; line-height:.95; margin-bottom:1.5rem; }
+.atmo-hl .red { color:var(--sz); }
+.atmo-body { font-size:.95rem; font-weight:300; color:var(--muted); line-height:1.7; max-width:380px; }
+.atmo-bar  { height:4px; width:40px; background:var(--amber); margin-bottom:1.25rem; }
+.atmo-quote { font-size:1rem; font-weight:300; line-height:1.7; border-left:4px solid var(--amber); padding-left:1.25rem; color:var(--text); margin-bottom:1.5rem; }
+.atmo-ql   { font-family:var(--mono); font-size:.68rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--amber); display:block; margin-bottom:.5rem; }
+.atmo-body2 { font-size:.85rem; color:var(--muted); font-weight:300; }
+.atmo-stats { border-top:3px solid var(--border); display:grid; grid-template-columns:repeat(3,1fr); }
+.atmo-stat { padding:1.5rem; border-right:3px solid var(--border); }
+.atmo-stat:last-child { border-right:none; }
+.atmo-val  { font-family:var(--mono); font-size:1.8rem; font-weight:600; line-height:1; margin-bottom:.3rem; }
+.atmo-val.pd { color:var(--pd); }
+.atmo-val.sz { color:var(--sz); }
+.atmo-lbl  { font-size:.75rem; color:var(--muted); }
+
+
+/* ═══════════════════════════
+   C02 — TIMELINE (Option A)
+   Sticky rail + flowing content
+═══════════════════════════ */
+.tl-section {
+  border: 3px solid var(--border);
+  box-shadow: 6px 6px 0 rgba(60,35,10,.08);
+  margin-bottom: 3rem;
+}
+
+/* Sticky header — sticks at top while scrolling through events */
+.tl-sec-hdr {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.75rem;
+  height: 60px;
+  gap: 1rem;
+  overflow: hidden;
+}
+.tl-sec-title {
+  font-family: var(--display);
+  font-size: clamp(.72rem, 1.4vw, 1rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.tl-sec-title.pd { color: var(--pd); }
+.tl-sec-title.sz { color: var(--sz); }
+.tl-sec-year {
+  font-family: var(--mono);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--amber);
+  flex-shrink: 0;
+  min-width: 54px;
+  text-align: right;
+  transition: opacity .3s;
+}
+
+/* Body: sticky rail | flowing events */
+.tl-sec-body {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+}
+
+/* ── Sticky year rail ── */
+.tl-rail {
+  position: sticky;
+  top: 60px;              /* sits below the 60px sticky header */
+  height: 100%;           /* fills grid cell — determined by events column, not forced to 100vh */
+  min-height: 200px;      /* failsafe so the rail is never invisible */
+  overflow: hidden;
+  border-right: 1px solid var(--faint);
+  background: var(--bg);
+  z-index: 5;
+}
+.tl-rail-line {
+  position: absolute;
+  top: 32px; bottom: 32px;
+  left: 50%;
+  width: 2px;
+  background: var(--faint);
+  transform: translateX(-50%);
+}
+.tl-rail-marker {
+  position: absolute;
+  left: 50%;
+  width: 12px; height: 12px;
+  background: var(--amber);
+  border: 2px solid var(--border);
+  transform: translate(-50%, -50%);
+  top: 32px;   /* start at top of track */
+  transition: top .5s cubic-bezier(.25,.46,.45,.94);
+  z-index: 3;
+  box-shadow: 2px 2px 0 rgba(60,35,10,.12);
+}
+.tl-rail-tick {
+  position: absolute;
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}
+.tl-rail-tick-mark { flex: 1; height: 1px; background: var(--faint); }
+.tl-rail-tick-yr {
+  font-family: var(--mono);
+  font-size: .5rem;
+  color: var(--faint);
+  padding: 0 2px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ── Flowing events ── */
+.tl-events-col { padding: .5rem 0; }
+
+.tl-ev {
+  padding: 1.75rem 2rem 1.75rem 1.5rem;
+  border-left: 3px solid transparent;
+  opacity: 0.1;
+  transform: translateY(6px);
+  transition: opacity .45s ease, transform .45s ease, border-color .35s;
+}
+.tl-ev + .tl-ev { border-top: 1px solid var(--faint); }
+.tl-ev.visible   { opacity: 1; transform: translateY(0); }
+.tl-ev.nonspec.visible { opacity: .4; }
+.tl-ev.active    { border-left-color: var(--faint); }
+.tl-ev.saa.active    { border-left-color: var(--pd); }
+.tl-ev.dx.active     { border-left-color: var(--sz); }
+.tl-ev.chr.active    { border-left-color: var(--sz); }
+.tl-ev.pd-ev.active  { border-left-color: var(--amber); }
+.tl-ev.sz-ev.active  { border-left-color: var(--amber); }
+
+.tl-ev-yr {
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: .06em;
+  margin-bottom: .3rem;
+}
+.tl-ev-name {
+  font-family: var(--body);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: .45rem;
+}
+.tl-ev.visible.pd-ev .tl-ev-name { color: var(--pd); }
+.tl-ev.visible.saa   .tl-ev-name { color: var(--pd); font-weight: 600; }
+.tl-ev.visible.sz-ev .tl-ev-name { color: var(--sz); }
+.tl-ev.visible.chr   .tl-ev-name { color: var(--sz); font-weight: 600; }
+.tl-ev.visible.dx    .tl-ev-name { color: var(--sz); font-weight: 600; }
+.tl-ev.nonspec .tl-ev-name       { color: var(--muted); }
+
+.tl-ev-sub {
+  font-size: .85rem;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 580px;
+}
+
+/* Footer */
+.tl-sec-ftr {
+  border-top: 3px solid var(--border);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding: 1rem 1.75rem;
+  align-items: baseline;
+}
+.tl-ftr-rate { font-family:var(--mono); font-size:1.2rem; font-weight:600; white-space:nowrap; }
+.tl-ftr-rate.pd { color: var(--pd); }
+.tl-ftr-rate.sz { color: var(--sz); }
+.tl-ftr-text { font-size:.78rem; color:var(--muted); line-height:1.5; }
+.tl-ftr-cav  { display:block; font-family:var(--mono); font-size:.62rem; color:var(--faint); margin-top:.2rem; }
+
+/* Mobile: hide rail, show static list */
+@media (max-width:700px) {
+  .tl-sec-body    { grid-template-columns: 1fr; }
+  .tl-rail        { display: none; }
+  .tl-sec-hdr     { position: static; }
+  .tl-ev          { opacity: 1 !important; transform: none !important; }
+  .tl-ev.nonspec  { opacity: .45 !important; }
+  .tl-ev.visible.pd-ev .tl-ev-name { color: var(--pd); }
+  .tl-ev.visible.saa   .tl-ev-name { color: var(--pd); font-weight:600; }
+  .tl-ev.visible.sz-ev .tl-ev-name { color: var(--sz); }
+  .tl-ev.visible.chr   .tl-ev-name { color: var(--sz); font-weight:600; }
+  .tl-ev.visible.dx    .tl-ev-name { color: var(--sz); font-weight:600; }
+  .tl-sec-ftr { grid-template-columns: 1fr; }
+}
+
+
+/* ═══════════════════════════
+   C02c — COMPARISON PANEL
+═══════════════════════════ */
+.comp-body  { padding:2rem; }
+.comp-intro { font-size:.95rem; font-weight:300; color:var(--muted); max-width:600px; line-height:1.7; margin-bottom:2.5rem; }
+.comp-intro strong { color:var(--text); font-weight:500; }
+.comp-row   { margin-bottom:2rem; }
+.comp-row-lbl { font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:.5rem; }
+.comp-row-lbl.pd { color:var(--pd); }
+.comp-row-lbl.sz { color:var(--sz); }
+.comp-bar { height:44px; background:var(--surface); border:2px solid var(--faint); position:relative; overflow:hidden; margin-bottom:.4rem; }
+.comp-bar::after { content:''; position:absolute; right:0; top:0; bottom:0; width:2px; background:var(--sz); }
+.comp-seg { position:absolute; top:0; height:100%; display:flex; align-items:center; }
+.comp-seg-fill-pd  { background:var(--pd); opacity:.9; left:0; width:100%; padding-left:10px; font-family:var(--mono); font-size:.72rem; font-weight:600; color:#fff; }
+.comp-seg-fill-scz-ns  { background:rgba(197,57,42,.2); border-right:1px dashed var(--sz); left:80%; width:13%; }
+.comp-seg-fill-scz-chr { background:var(--sz); left:93%; width:7%; padding-left:6px; font-family:var(--mono); font-size:.68rem; font-weight:600; color:#fff; }
+.comp-scale { display:flex; justify-content:space-between; font-family:var(--mono); font-size:.6rem; color:var(--faint); letter-spacing:.04em; }
+.comp-legend { margin-top:2rem; display:flex; flex-wrap:wrap; gap:1.5rem; padding-top:1.5rem; border-top:1px solid var(--faint); }
+.comp-leg-item { display:flex; align-items:center; gap:.6rem; font-size:.8rem; color:var(--muted); }
+.comp-leg-dot  { width:10px; height:10px; flex-shrink:0; }
+.comp-leg-dot.solid-pd { background:var(--pd); }
+.comp-leg-dot.solid-sz { background:var(--sz); }
+.comp-leg-dot.faded-sz { background:rgba(197,57,42,.3); border:1px dashed var(--sz); }
+.comp-stats { margin-top:2rem; display:grid; grid-template-columns:1fr 1fr; border:3px solid var(--border); }
+.comp-stat-cell { padding:1.5rem; }
+.comp-stat-cell:first-child { border-right:3px solid var(--border); }
+.comp-stat-big { font-family:var(--mono); font-size:2rem; font-weight:600; line-height:1; margin-bottom:.4rem; }
+.comp-stat-big.pd { color:var(--pd); }
+.comp-stat-big.sz { color:var(--sz); }
+.comp-stat-text { font-size:.8rem; color:var(--muted); line-height:1.55; }
+.comp-stat-cav  { font-family:var(--mono); font-size:.65rem; color:var(--faint); display:block; margin-top:.3rem; }
+
+
+/* ═══════════════════════════
+   C03 — TRS
+═══════════════════════════ */
+.trs-body   { padding:2rem; }
+.trs-setup  { font-size:.95rem; font-weight:300; color:var(--muted); max-width:580px; line-height:1.7; margin-bottom:1.75rem; }
+.trs-setup strong { color:var(--text); font-weight:500; }
+.trs-g-note { font-size:.82rem; color:var(--muted); margin-bottom:1.75rem; padding:.75rem 1rem; background:var(--surface); border-left:3px solid var(--faint); }
+.trs-g-note em { color:var(--text); font-style:normal; font-weight:500; }
+.trs-bars   { margin-bottom:1.75rem; }
+.trs-row    { display:flex; align-items:center; gap:1.25rem; margin-bottom:1rem; }
+.trs-lbl    { font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; width:180px; flex-shrink:0; color:var(--muted); transition:color .4s; line-height:1.4; }
+.trs-lbl.lit { color:var(--text); }
+.trs-track  { flex:1; height:40px; background:var(--surface); border:2px solid var(--faint); overflow:hidden; }
+.trs-fill   { height:100%; display:flex; align-items:center; padding:0 12px; font-family:var(--mono); font-size:.78rem; font-weight:600; color:#fff; width:0; transition:width 1.1s cubic-bezier(.4,0,.2,1); white-space:nowrap; }
+.trs-fill.f-all { background:var(--sz); }
+.trs-fill.f-non { background:var(--sz); }
+.trs-fill.f-trs { background:rgba(197,57,42,.25); border:2px dashed var(--sz); color:var(--sz); }
+.trs-ann    { font-family:var(--mono); font-size:.68rem; color:var(--muted); width:120px; flex-shrink:0; line-height:1.5; opacity:0; transition:opacity .5s .6s; }
+.trs-ann.show { opacity:1; }
+.trs-callout { display:none; margin:.5rem 0 1.5rem; padding:1.25rem 1.5rem; border:3px solid var(--sz); background:rgba(197,57,42,.05); box-shadow:4px 4px 0 rgba(197,57,42,.12); }
+.trs-callout.show { display:flex; align-items:baseline; gap:1.25rem; }
+.trs-callout-num  { font-family:var(--mono); font-size:3.5rem; font-weight:600; color:var(--sz); line-height:1; flex-shrink:0; }
+.trs-callout-text { font-size:.88rem; font-weight:300; color:var(--muted); line-height:1.6; }
+.trs-callout-text strong { color:var(--text); font-weight:500; }
+.trs-btn-row { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+.trs-btn { border:2px solid var(--border); background:var(--bg); font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; padding:.7rem 1.25rem; cursor:pointer; color:var(--text); transition:background .15s,color .15s; box-shadow:3px 3px 0 rgba(60,35,10,.1); }
+.trs-btn:hover { background:var(--border); color:var(--bg); }
+.trs-btn:disabled { opacity:.35; cursor:default; box-shadow:none; }
+.trs-btn.reset { border-color:var(--faint); box-shadow:none; }
+.trs-punchline { margin-top:1.75rem; border-top:2px solid var(--border); padding-top:1.5rem; opacity:0; transition:opacity .5s 1.4s; font-size:.92rem; font-weight:300; color:var(--muted); max-width:600px; line-height:1.7; }
+.trs-punchline.show { opacity:1; }
+.trs-punchline strong { color:var(--text); font-weight:500; }
+.trs-deep { display:none; font-family:var(--mono); font-size:.75rem; color:var(--sz); margin-top:.75rem; border-top:1px solid var(--faint); padding-top:.75rem; line-height:1.6; }
+.trs-deep.open { display:block; }
+.trs-deep-btn { border:1px solid var(--faint); background:transparent; font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; padding:.4rem .75rem; cursor:pointer; color:var(--muted); opacity:0; transition:opacity .4s 2s,background .15s,color .15s; margin-top:1rem; display:block; }
+.trs-deep-btn.show { opacity:1; }
+.trs-deep-btn:hover { background:var(--border); color:var(--bg); }
+
+
+/* ═══════════════════════════
+   C04 — DEPTH TOGGLE
+═══════════════════════════ */
+.depth-hdr { padding:1.5rem 2rem; border-bottom:3px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.depth-note { font-family:var(--mono); font-size:.7rem; color:var(--muted); letter-spacing:.06em; }
+.depth-btn { border:2px solid var(--border); background:var(--bg); font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:.5rem 1.25rem; cursor:pointer; color:var(--muted); transition:background .15s,color .15s; box-shadow:3px 3px 0 rgba(60,35,10,.1); }
+.depth-btn:hover, .depth-btn.on { background:var(--border); color:var(--bg); }
+.depth-items { padding:2rem; display:flex; flex-direction:column; gap:1.25rem; }
+.depth-item  { border:1px solid var(--faint); }
+.depth-surface { padding:1.5rem; }
+.depth-surface-text { font-size:.92rem; font-weight:300; color:var(--text); line-height:1.7; }
+.depth-tech { padding:1.25rem 1.5rem; background:var(--surface); border-top:1px solid var(--faint); display:none; }
+.depth-tech.open { display:block; }
+.depth-tech-label { font-family:var(--mono); font-size:.65rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--pd); margin-bottom:.5rem; }
+.depth-tech-text { font-family:var(--mono); font-size:.78rem; color:var(--muted); line-height:1.65; }
+.depth-cite { display:block; margin-top:.5rem; color:var(--pd); font-size:.72rem; }
+
+/* ── FOOTER ── */
+footer { border-top:3px solid var(--border); padding:1.5rem 2.5rem; display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:.72rem; color:var(--muted); letter-spacing:.06em; max-width:1100px; margin:0 auto; }
+footer a { color:var(--text); text-decoration:none; }
+footer a:hover { text-decoration:underline; }
+
+/* Responsive: C01, comparison */
+@media (max-width:700px) {
+  .atmo-grid, .atmo-stats { grid-template-columns:1fr; }
+  .atmo-cell:first-child { border-right:none; border-bottom:3px solid var(--border); }
+  .atmo-stat { border-right:none; border-bottom:1px solid var(--faint); }
+  .comp-stats { grid-template-columns:1fr; }
+  .comp-stat-cell:first-child { border-right:none; border-bottom:3px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<div class="playground">
+  <div class="play-header">
+    <div class="play-title">Component Playground — Biomarker</div>
+    <div class="play-note">review before assembly</div>
+  </div>
+
+
+  <!-- ═══ C01 — ATMOSPHERE ═══ -->
+  <div class="play-sec">
+    <div class="play-lbl">Component 01</div>
+    <div class="play-name">Atmosphere — Warm Brutalism</div>
+    <div class="c-box">
+      <div class="atmo-grid">
+        <div class="atmo-cell">
+          <div class="atmo-hl">Stage-<br>Linkage<br>&amp; Its<br><span class="red">Limits</span></div>
+          <p class="atmo-body">What in vivo biomarker research reveals about two disorders — one with a mechanism that stages, one with a mechanism that converges.</p>
+        </div>
+        <div class="atmo-cell">
+          <div class="atmo-bar"></div>
+          <div class="atmo-quote"><span class="atmo-ql">Core Argument</span>A biomarker advances understanding of aetiopathogenesis when it connects a plausible biological mechanism to identifiable stages of illness course.</div>
+          <p class="atmo-body2">A biomarker may be tracking the cause — or just riding alongside it. Most research can't yet tell the difference.</p>
+        </div>
+      </div>
+      <div class="atmo-stats">
+        <div class="atmo-stat"><div class="atmo-val pd">~88%</div><div class="atmo-lbl">α-synuclein seed amplification assay (SAA) sensitivity in Parkinson's disease (PD)</div></div>
+        <div class="atmo-stat"><div class="atmo-val sz">g = 0.68</div><div class="atmo-lbl">Dopamine effect size in established schizophrenia (SCZ)</div></div>
+        <div class="atmo-stat"><div class="atmo-val sz">~37%</div><div class="atmo-lbl">Treatment-resistant schizophrenia (TRS) patients — outside the dopamine model</div></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ C02a — PD TIMELINE ═══ -->
+  <div class="play-sec">
+    <div class="play-lbl">Component 02a</div>
+    <div class="play-name">Parkinson's Disease (PD) — How Early Can We See It Coming?</div>
+    <p class="play-fn" style="margin-top:0;margin-bottom:1.5rem">Scroll through — the left rail tracks where in time you are. Events fade in as you read. Scroll back — the marker retreats.</p>
+
+    <div class="tl-section" id="pdSection">
+      <!-- Sticky header -->
+      <div class="tl-sec-hdr">
+        <div class="tl-sec-title pd">Parkinson's disease (PD)</div>
+        <div class="tl-sec-year" id="pdYear">−20 yr</div>
+      </div>
+      <!-- Grid: rail | events -->
+      <div class="tl-sec-body">
+        <!-- Sticky rail -->
+        <div class="tl-rail" id="pdRail">
+          <div class="tl-rail-line"></div>
+          <div class="tl-rail-marker" id="pdMarker"></div>
+          <!-- ticks injected by JS -->
+        </div>
+        <!-- Flowing events -->
+        <div class="tl-events-col" id="pdEvts">
+
+          <div class="tl-ev pd-ev" data-year="-20">
+            <div class="tl-ev-yr">−20 yr before motor diagnosis</div>
+            <div class="tl-ev-name">Olfactory loss (hyposmia)</div>
+            <div class="tl-ev-sub">First detectable signal. Often dismissed as age or allergies. Can begin more than 20 years before motor onset. By −13yr: constipation and colour vision changes also emerge, often subclinical.</div>
+          </div>
+
+          <div class="tl-ev pd-ev" data-year="-11">
+            <div class="tl-ev-yr">−11 yr before motor diagnosis</div>
+            <div class="tl-ev-name">REM sleep behaviour disorder (RBD)</div>
+            <div class="tl-ev-sub">The body acts out dreams during sleep — kicking, talking, reaching. The strongest single predictor of phenoconversion to Parkinson's disease (PD). By −9yr: subtle motor signs and urinary dysfunction also appear.</div>
+          </div>
+
+          <div class="tl-ev saa" data-year="-6">
+            <div class="tl-ev-yr">−6 yr before motor diagnosis</div>
+            <div class="tl-ev-name">α-synuclein seed amplification assay (SAA) — detectable</div>
+            <div class="tl-ev-sub">A test detects misfolded α-synuclein protein in cerebrospinal fluid. Present in ~86% of enriched prodromal cohorts. Not a countdown — it identifies the type of pathology, not a date.</div>
+          </div>
+
+          <div class="tl-ev pd-ev" data-year="-2">
+            <div class="tl-ev-yr">−2 yr before motor diagnosis</div>
+            <div class="tl-ev-name">Bradykinesia, rigidity and tremor emerge</div>
+            <div class="tl-ev-sub">Cardinal motor symptoms appear in sequence: bradykinesia (slowness) first at ~−5yr, then rigidity at ~−3yr, tremor at ~−2yr. The biology has been present for over a decade by this point.</div>
+          </div>
+
+          <div class="tl-ev dx pd-ev" data-year="0">
+            <div class="tl-ev-yr">Year 0</div>
+            <div class="tl-ev-name">Motor diagnosis</div>
+            <div class="tl-ev-sub">Clinical Parkinson's disease (PD) threshold. The biology started long before this moment.</div>
+          </div>
+
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="tl-sec-ftr">
+        <div class="tl-ftr-rate pd">~80–90%</div>
+        <div class="tl-ftr-text">of people with REM sleep behaviour disorder (RBD) phenoconvert to Parkinson's disease (PD) or a related alpha-synucleinopathy within 20 years.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ C02b — SCZ TIMELINE ═══ -->
+  <div class="play-sec">
+    <div class="play-lbl">Component 02b</div>
+    <div class="play-name">Schizophrenia (SCZ) — The Same Question, a Different Answer</div>
+    <p class="play-fn" style="margin-top:0;margin-bottom:1.5rem">Section is intentionally shorter — fewer events, shorter time window. The asymmetry in section length mirrors the asymmetry in evidence.</p>
+
+    <div class="tl-section" id="sczSection">
+      <div class="tl-sec-hdr">
+        <div class="tl-sec-title sz">Schizophrenia (SCZ)</div>
+        <div class="tl-sec-year" id="sczYear">−7 yr</div>
+      </div>
+      <div class="tl-sec-body">
+        <div class="tl-rail" id="sczRail">
+          <div class="tl-rail-line"></div>
+          <div class="tl-rail-marker" id="sczMarker"></div>
+        </div>
+        <div class="tl-events-col" id="sczEvts">
+
+          <div class="tl-ev nonspec sz-ev" data-year="-5">
+            <div class="tl-ev-yr">−5 yr before first-episode psychosis (FEP)</div>
+            <div class="tl-ev-name">Non-specific prodrome</div>
+            <div class="tl-ev-sub">Anxiety, depression, sleep disturbance, social withdrawal. Appears 2–10 years before first-episode psychosis (FEP). Overlaps heavily with many other conditions. No biological anchor. Deliberately faded — not a reliable biomarker signal.</div>
+          </div>
+
+          <div class="tl-ev chr sz-ev" data-year="-1.8">
+            <div class="tl-ev-yr">−2 yr before first-episode psychosis (FEP)</div>
+            <div class="tl-ev-name">Clinical high risk for psychosis (CHR-P) window</div>
+            <div class="tl-ev-sub">Attenuated psychotic symptoms, operationalised with a specialist interview. Mean duration: 21.6 months before first-episode psychosis (FEP). 36% of clinical high risk for psychosis (CHR-P) individuals develop psychosis within 3 years. 64% do not convert. No equivalent of the α-synuclein seed amplification assay (SAA) exists.</div>
+          </div>
+
+          <div class="tl-ev dx sz-ev" data-year="0">
+            <div class="tl-ev-yr">Year 0</div>
+            <div class="tl-ev-name">First-episode psychosis (FEP)</div>
+            <div class="tl-ev-sub">Clinical schizophrenia (SCZ) diagnosis. The operationalised prodromal window covers only the final ~2 years. There is no SAA equivalent.</div>
+          </div>
+
+        </div>
+      </div>
+      <div class="tl-sec-ftr">
+        <div class="tl-ftr-rate sz">~36%</div>
+        <div class="tl-ftr-text">of clinical high risk for psychosis (CHR-P) individuals develop psychosis within 3 years (Fusar-Poli et al., 2012; n=2,502).
+          <span class="tl-ftr-cav">Contemporary multi-site cohorts report lower rates (~22%), reflecting broader ascertainment.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ C02c — COMPARISON ═══ -->
+  <div class="play-sec">
+    <div class="play-lbl">Component 02c</div>
+    <div class="play-name">The Asymmetry — Side by Side</div>
+    <div class="c-box">
+      <div class="c-head">
+        <div class="c-title">How far back can we see it coming?</div>
+        <div class="c-meta">same 25-year scale</div>
+      </div>
+      <div class="comp-body">
+        <p class="comp-intro">Both bars represent the same 25-year window before onset. <strong>What fills the bar is what we can detect.</strong></p>
+        <div class="comp-row">
+          <div class="comp-row-lbl pd">Parkinson's disease (PD) — α-synuclein seed amplification assay (SAA)</div>
+          <div class="comp-bar"><div class="comp-seg comp-seg-fill-pd">Detectable prodromal signal — up to 20 years</div></div>
+          <div class="comp-scale"><span>−25 yr</span><span>−20 yr</span><span>−15 yr</span><span>−10 yr</span><span>−5 yr</span><span>Year 0</span></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-row-lbl sz">Schizophrenia (SCZ) — Dopamine / Clinical high risk for psychosis (CHR-P)</div>
+          <div class="comp-bar">
+            <div class="comp-seg comp-seg-fill-scz-ns"></div>
+            <div class="comp-seg comp-seg-fill-scz-chr">CHR-P</div>
+          </div>
+          <div class="comp-scale"><span>−25 yr</span><span>−20 yr</span><span>−15 yr</span><span>−10 yr</span><span>−5 yr</span><span>Year 0</span></div>
+        </div>
+        <div class="comp-legend">
+          <div class="comp-leg-item"><div class="comp-leg-dot solid-pd"></div>Biologically anchored prodromal signal (PD)</div>
+          <div class="comp-leg-item"><div class="comp-leg-dot faded-sz"></div>Non-specific clinical prodrome (SCZ) — not biologically anchored</div>
+          <div class="comp-leg-item"><div class="comp-leg-dot solid-sz"></div>Clinical high risk for psychosis (CHR-P) window</div>
+        </div>
+        <div class="comp-stats">
+          <div class="comp-stat-cell">
+            <div class="comp-stat-big pd">~80–90%</div>
+            <div class="comp-stat-text">of people with REM sleep behaviour disorder (RBD) phenoconvert to Parkinson's disease (PD) within 20 years.</div>
+          </div>
+          <div class="comp-stat-cell">
+            <div class="comp-stat-big sz">~36%</div>
+            <div class="comp-stat-text">of clinical high risk for psychosis (CHR-P) individuals develop psychosis within 3 years.
+              <span class="comp-stat-cav">Fusar-Poli et al. (2012), n=2,502. Contemporary cohorts: ~22%.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ C03 — TRS ═══ -->
+  <div class="play-sec">
+    <div class="play-lbl">Component 03</div>
+    <div class="play-name">The Dopamine Signal — What Happens When You Look Closer</div>
+    <div class="c-box">
+      <div class="c-head">
+        <div class="c-title sz">Schizophrenia (SCZ) &amp; Dopamine</div>
+        <div class="c-meta">effect size across patient groups</div>
+      </div>
+      <div class="trs-body">
+        <p class="trs-setup">Elevated striatal dopamine is the strongest in vivo finding in established schizophrenia (SCZ). The effect is real, consistent, and <strong>meaningfully large</strong> across 21 positron emission tomography (PET) studies.<br><br>Then someone asked: what about the patients for whom antipsychotics don't work?</p>
+        <div class="trs-g-note">What is "g"? Hedges' g measures how big a difference actually is. Below 0.2: barely detectable. Around 0.5: moderate. <em>0.65 is large and consistent.</em></div>
+        <div class="trs-bars">
+          <div class="trs-row" id="rowAll">
+            <div class="trs-lbl lit">All patients</div>
+            <div class="trs-track"><div class="trs-fill f-all" id="fillAll" style="width:65%">g = 0.65</div></div>
+            <div class="trs-ann show">21 PET studies<br>983 patients</div>
+          </div>
+          <div class="trs-row" id="rowNon" style="display:none">
+            <div class="trs-lbl" id="lblNon">Non-resistant (63%)</div>
+            <div class="trs-track"><div class="trs-fill f-non" id="fillNon">g ≈ 0.87</div></div>
+            <div class="trs-ann" id="annNon">responds to<br>antipsychotics</div>
+          </div>
+          <div class="trs-row" id="rowTRS" style="display:none">
+            <div class="trs-lbl" id="lblTRS">Treatment-resistant (TRS)</div>
+            <div class="trs-track"><div class="trs-fill f-trs" id="fillTRS">p &gt; .3 — no signal</div></div>
+            <div class="trs-ann" id="annTRS">no difference<br>from controls</div>
+          </div>
+        </div>
+        <div class="trs-callout" id="trsCallout">
+          <div class="trs-callout-num">37%</div>
+          <div class="trs-callout-text">of people with schizophrenia (SCZ) have <strong>treatment-resistant schizophrenia (TRS)</strong> — and in this group, dopamine synthesis capacity does not differ from healthy controls at all.</div>
+        </div>
+        <div class="trs-btn-row">
+          <button class="trs-btn" id="trsSplitBtn" onclick="doSplit()">&#9670; Separate treatment-resistant patients</button>
+          <button class="trs-btn reset" id="trsResetBtn" onclick="doReset()" style="display:none">&#8592; Reset</button>
+        </div>
+        <div class="trs-punchline" id="trsPunchline">
+          The signal you've been looking at only exists in patients for whom treatment already works. For <strong>37% of people with schizophrenia</strong> — those with treatment-resistant schizophrenia (TRS) — dopamine isn't elevated at all.
+          <div class="trs-deep" id="trsDeep">Brugger et al. (2020): meta-analysis of variance, 65 studies, 983 patients. Overall Hedges' g = 0.65, p = .004. TRS subgroup: p &gt; .3 vs controls. — Diniz et al. (2023): TRS prevalence ~37%, 50 studies, n ≈ 30,000.</div>
+        </div>
+        <button class="trs-deep-btn" id="trsDeepBtn" onclick="document.getElementById('trsDeep').classList.toggle('open')">+ research detail</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ C04 — DEPTH TOGGLE ═══ -->
+  <div class="play-sec">
+    <div class="play-lbl">Component 04</div>
+    <div class="play-name">Depth Toggle — Default Public, Toggle Research Detail</div>
+    <div class="c-box">
+      <div class="depth-hdr">
+        <div class="c-title">Evidence Layer</div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span class="depth-note" id="depthNote">General reading</span>
+          <button class="depth-btn" id="depthBtn" onclick="toggleDepth()">+ research detail</button>
+        </div>
+      </div>
+      <div class="depth-items">
+        <div class="depth-item">
+          <div class="depth-surface"><p class="depth-surface-text">A test can find Parkinson's disease (PD) hiding in the body years before any shaking starts — before the person has any idea.</p></div>
+          <div class="depth-tech" id="tech1"><div class="depth-tech-label">Research detail</div><p class="depth-tech-text">α-synuclein seed amplification assay (SAA) demonstrated prodromal sensitivity in participants with REM sleep behaviour disorder (RBD) and hyposmia prior to motor onset. Present in ~86% of enriched prodromal cohort.<span class="depth-cite">Siderowf et al. (2023), Lancet Neurology — 87.7% sensitivity, 96% specificity.</span></p></div>
+        </div>
+        <div class="depth-item">
+          <div class="depth-surface"><p class="depth-surface-text">The dopamine finding in schizophrenia (SCZ) is real — but it vanishes entirely in a third of patients. Which raises a question about what it was actually measuring.</p></div>
+          <div class="depth-tech" id="tech2"><div class="depth-tech-label">Research detail</div><p class="depth-tech-text">Brugger et al. (2020): overall Hedges' g = 0.65 across 65 studies. Treatment-resistant schizophrenia (TRS) subgroup: p &gt; .3 vs controls. Signal carried entirely by treatment-responsive patients.<span class="depth-cite">Eisenberg et al. (2025): TRS-specific polygenic risk predicts lower (not higher) dopamine capacity in healthy adults.</span></p></div>
+        </div>
+        <div class="depth-item">
+          <div class="depth-surface"><p class="depth-surface-text">In Parkinson's disease (PD), the biology has a traceable path going back decades. In schizophrenia (SCZ), many trajectories lead to the same endpoint — you can't run the film backwards.</p></div>
+          <div class="depth-tech" id="tech3"><div class="depth-tech-label">Research detail</div><p class="depth-tech-text">Striatal dopamine dysregulation as "final common pathway" (Howes &amp; Kapur, 2009): a shared downstream endpoint onto which neurodevelopmental, environmental, and genetic inputs converge. Stage-linkage requires a traceable origin; convergent causal architecture structurally precludes it.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /playground -->
+
+<footer>
+  <span>made by <a href="https://twitter.com/jelliwolf">@jelliwolf</a></span>
+  <span>component playground — not final</span>
+</footer>
+
+
+<script>
+/* ═════════════════════════════
+   TIMELINE INITIALISER
+   Works for any section with a sticky rail + flowing events
+═════════════════════════════ */
+function initTimeline({ railId, markerEl, yearEl, evtsId, start, span, ticks, color }) {
+  const rail    = document.getElementById(railId);
+  const evts    = document.getElementById(evtsId).querySelectorAll('.tl-ev');
+  const PAD     = 32;   // px from top/bottom of rail reserved for track ends
+
+  // ── Build year ticks on the rail ──
+  function buildTicks() {
+    // Remove old ticks
+    rail.querySelectorAll('.tl-rail-tick').forEach(t => t.remove());
+    const railH  = rail.offsetHeight;
+    const trackH = railH - PAD * 2;
+    ticks.forEach(yr => {
+      const pct  = (yr - start) / span;
+      const topPx = PAD + pct * trackH;
+      const tick  = document.createElement('div');
+      tick.className = 'tl-rail-tick';
+      tick.style.cssText = `position:absolute;top:${topPx}px;left:0;right:0;display:flex;align-items:center;transform:translateY(-50%)`;
+      tick.innerHTML = `<div class="tl-rail-tick-mark"></div><div class="tl-rail-tick-yr">${yr === 0 ? '0' : yr}</div>`;
+      rail.appendChild(tick);
+    });
+  }
+
+  // ── Move marker to a given year ──
+  function setMarker(yr) {
+    const railH  = rail.offsetHeight;
+    const trackH = railH - PAD * 2;
+    const pct    = Math.max(0, Math.min(1, (yr - start) / span));
+    markerEl.style.top = (PAD + pct * trackH) + 'px';
+    yearEl.textContent = yr === 0 ? 'Year 0' : Math.round(yr) + ' yr';
+  }
+
+  // ── Fade-in: activate when entering viewport ──
+  const fadeObs = new IntersectionObserver(entries => {
+    entries.forEach(e => e.target.classList.toggle('visible', e.isIntersecting));
+  }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+
+  // ── Active tracking: which event is in the reading zone ──
+  // rootMargin: only events in the top 50% of viewport trigger this
+  let currentYear = start;
+  const activeObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      e.target.classList.toggle('active', e.isIntersecting);
+      if (e.isIntersecting) {
+        currentYear = parseFloat(e.target.dataset.year);
+        setMarker(currentYear);
+      }
+    });
+  }, { threshold: 0, rootMargin: '-10% 0px -50% 0px' });
+
+  evts.forEach(ev => {
+    fadeObs.observe(ev);
+    activeObs.observe(ev);
+  });
+
+  // Init and rebuild on resize
+  buildTicks();
+  setMarker(start);
+  window.addEventListener('resize', () => { buildTicks(); setMarker(currentYear); });
+  document.fonts.ready.then(() => { buildTicks(); setMarker(currentYear); });
+}
+
+// PD timeline: −20yr to 0yr
+initTimeline({
+  railId:   'pdRail',
+  markerEl: document.getElementById('pdMarker'),
+  yearEl:   document.getElementById('pdYear'),
+  evtsId:   'pdEvts',
+  start:    -20,
+  span:     20,
+  ticks:    [-20, -15, -10, -5, 0],
+  color:    'pd'
+});
+
+// SCZ timeline: −7yr to 0yr
+initTimeline({
+  railId:   'sczRail',
+  markerEl: document.getElementById('sczMarker'),
+  yearEl:   document.getElementById('sczYear'),
+  evtsId:   'sczEvts',
+  start:    -7,
+  span:     7,
+  ticks:    [-7, -5, -3, -1, 0],
+  color:    'sz'
+});
+
+
+/* ═════════════════════════════
+   C03 — TRS
+═════════════════════════════ */
+let trsSplit = false;
+function doSplit() {
+  if (trsSplit) return;
+  trsSplit = true;
+  document.getElementById('trsSplitBtn').disabled = true;
+  const fAll = document.getElementById('fillAll');
+  fAll.style.transition = 'width .6s, opacity .4s';
+  fAll.style.opacity = '0'; fAll.style.width = '0';
+  setTimeout(() => {
+    document.getElementById('rowAll').style.display = 'none';
+    document.getElementById('rowNon').style.display = 'flex';
+    document.getElementById('rowTRS').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('lblNon').classList.add('lit');
+      document.getElementById('lblTRS').classList.add('lit');
+      document.getElementById('fillNon').style.width = '73%';
+      document.getElementById('annNon').classList.add('show');
+    }, 100);
+    setTimeout(() => {
+      document.getElementById('fillTRS').style.width = '9%';
+      document.getElementById('annTRS').classList.add('show');
+    }, 500);
+    setTimeout(() => { document.getElementById('trsCallout').classList.add('show'); }, 900);
+    setTimeout(() => {
+      document.getElementById('trsPunchline').classList.add('show');
+      document.getElementById('trsDeepBtn').classList.add('show');
+      document.getElementById('trsResetBtn').style.display = 'inline-flex';
+    }, 1100);
+  }, 600);
+}
+function doReset() {
+  trsSplit = false;
+  document.getElementById('trsCallout').classList.remove('show');
+  document.getElementById('trsPunchline').classList.remove('show');
+  document.getElementById('trsDeep').classList.remove('open');
+  document.getElementById('trsDeepBtn').classList.remove('show');
+  document.getElementById('trsResetBtn').style.display = 'none';
+  const fNon = document.getElementById('fillNon');
+  const fTRS = document.getElementById('fillTRS');
+  fNon.style.transition = 'none'; fNon.style.width = '0';
+  fTRS.style.transition = 'none'; fTRS.style.width = '0';
+  document.getElementById('annNon').classList.remove('show');
+  document.getElementById('annTRS').classList.remove('show');
+  document.getElementById('lblNon').classList.remove('lit');
+  document.getElementById('lblTRS').classList.remove('lit');
+  setTimeout(() => {
+    document.getElementById('rowNon').style.display = 'none';
+    document.getElementById('rowTRS').style.display = 'none';
+    fNon.style.transition = ''; fTRS.style.transition = '';
+    const fAll = document.getElementById('fillAll');
+    fAll.style.transition = 'none'; fAll.style.opacity = '1'; fAll.style.width = '0';
+    document.getElementById('rowAll').style.display = 'flex';
+    requestAnimationFrame(() => { fAll.style.transition = 'width .9s'; fAll.style.width = '65%'; document.getElementById('trsSplitBtn').disabled = false; });
+  }, 200);
+}
+
+
+/* ═════════════════════════════
+   C04 — DEPTH TOGGLE
+═════════════════════════════ */
+let depthOn = false;
+function toggleDepth() {
+  depthOn = !depthOn;
+  document.querySelectorAll('.depth-tech').forEach(t => t.classList.toggle('open', depthOn));
+  document.getElementById('depthBtn').textContent  = depthOn ? '− hide detail' : '+ research detail';
+  document.getElementById('depthBtn').classList.toggle('on', depthOn);
+  document.getElementById('depthNote').textContent = depthOn ? 'General + research detail' : 'General reading';
+}
+</script>
+</body>
+</html>
