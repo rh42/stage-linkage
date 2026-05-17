@@ -1326,7 +1326,7 @@ function doReset() {
 })();
 
 /* ── IDLE SIGNAL DECAY ── */
-  const IDLE_DELAY = 18000; // ms — maybe swap to 30000 for production
+  const IDLE_DELAY = 3000; // ms — maybe swap to 30000 for production
 
   const bodyText = document.querySelectorAll(
     '.sec-body, .hero-thesis, .hero-sub, .tl-ev-name, .tl-ev-sub, .tl-ftr-text, .comp-intro, .comp-conv-text, .trs-setup, .trs-punchline, .trs-callout-text, .depth-surface-text, .depth-tech-text, .crit-body, .callout p, .bm-type p, .syn-table td, .ref-list p'
@@ -1365,8 +1365,244 @@ function doReset() {
     window.addEventListener(evt, resetSignal, { passive: true })
   );
 
+  /* ── blood + enter to toggle ── */
+  let _bseq = '';
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (_bseq === 'blood') running ? stopBlood() : startBlood();
+      _bseq = '';
+    } else if (e.key.length === 1) {
+      _bseq = (_bseq + e.key).slice(-5);
+    } else {
+      _bseq = '';
+    }
+  });
+
   resetSignal();
 
+</script>
+
+<!-- ── THE SHINING ── -->
+<svg style="position:absolute;width:0;height:0">
+  <defs>
+    <filter id="blood-filter" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.009" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<canvas id="bloodCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0;transition:opacity 1.5s ease;filter:url(#blood-filter);"></canvas>
+
+<script>
+  const canvas = document.getElementById('bloodCanvas');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let streams = [], particles = [], animFrame, running = false;
+  let poolHeight = 0;
+  let frameCount = 0;
+  let waveTime = 0;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    poolHeight = 0;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class BloodStream {
+    constructor() { this.reset(); }
+    reset() {
+      const fromTop = Math.random() < 0.75;
+      if (fromTop) {
+        this.x = Math.random() * canvas.width;
+        this.y = -(30 + Math.random() * Math.random() * 650);
+        this.vx = (Math.random() - 0.5) * 2.8;
+        this.vy = 7 + Math.random() * 8;
+      } else {
+        this.x = Math.random() < 0.5 ? -50 : canvas.width + 50;
+        this.y = Math.random() * canvas.height * 0.65;
+        this.vx = this.x < 0 ? 6 + Math.random() * 7 : -6 - Math.random() * 7;
+        this.vy = 3 + Math.random() * 5;
+      }
+      this.width = 7 + Math.random() * 16;
+      this.alpha = 0.9 + Math.random() * 0.1;
+      this.segments = [];
+      this.done = false;
+      this.hesitate = 0;
+      this.life = 280;
+    }
+  }
+
+  class SplashParticle {
+    constructor(x, y, big = false) {
+      this.x = x;
+      this.y = y;
+      this.vx = (Math.random() - 0.5) * (big ? 13 : 9);
+      this.vy = - (big ? 9 : 5) - Math.random() * 8;
+      this.life = big ? 75 : 50 + Math.random() * 45;
+      this.size = big ? 5 + Math.random() * 6 : 3 + Math.random() * 4.5;
+    }
+    update() {
+      this.vy += 0.38;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vx *= 0.96;
+      this.life--;
+    }
+  }
+
+  function createStreams(count = 170) {
+    streams = [];
+    for (let i = 0; i < count; i++) streams.push(new BloodStream());
+  }
+
+  function drawPool() {
+    const maxH = canvas.height * 0.72;
+    const h = Math.min(maxH, poolHeight);
+    const baseY = canvas.height - h;
+    waveTime += 0.12;
+
+    // Main blood pool - darker & richer
+    const grad = ctx.createLinearGradient(0, baseY, 0, canvas.height);
+    grad.addColorStop(0, 'rgba(175, 6, 6, 0.96)');
+    grad.addColorStop(0.38, 'rgba(118, 3, 3, 0.98)');
+    grad.addColorStop(1, 'rgba(32, 1, 1, 0.99)');
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, baseY, canvas.width, canvas.height);
+
+    // Violent wave surface
+    ctx.beginPath();
+    ctx.moveTo(0, baseY);
+    for (let x = 0; x <= canvas.width; x += 18) {
+      const wave1 = Math.sin(waveTime + x * 0.006) * 28;
+      const wave2 = Math.sin(waveTime * 1.7 + x * 0.015) * 11;
+      const wave3 = Math.sin(waveTime * 0.7 + x * 0.005) * 8;
+      const y = baseY + wave1 + wave2 + wave3;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(138, 5, 5, 0.82)';
+    ctx.fill();
+
+    // Fixed brighter wave highlight - now reaches full right edge
+    ctx.strokeStyle = 'rgba(255, 155, 140, 0.40)';
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.moveTo(0, baseY);
+    for (let x = 0; x <= canvas.width + 40; x += 22) {
+      const y = baseY + Math.sin(waveTime + x * 0.008) * 22 + Math.sin(waveTime * 1.6 + x * 0.014) * 9;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  function drawBlood() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frameCount++;
+
+    poolHeight += 1.35;
+    if (poolHeight > canvas.height * 0.72) poolHeight = canvas.height * 0.72;
+
+    drawPool();
+
+    // STREAMS
+    streams.forEach(s => {
+      if (s.done) return;
+      s.life--;
+      if (s.hesitate > 0) s.hesitate--;
+      else if (Math.random() < 0.022) s.hesitate = 5 + Math.random() * 12;
+
+      const speed = s.hesitate > 0 ? 0.2 : 1.05;
+      s.vy += 0.11 * speed;
+      s.vx *= 0.978;
+      s.x += s.vx * speed;
+      s.y += s.vy * speed;
+
+      s.segments.push({x: s.x, y: s.y});
+      if (s.segments.length > 32) s.segments.shift();
+
+      const poolTop = canvas.height - Math.min(canvas.height * 0.72, poolHeight);
+
+      if (s.y >= poolTop - 12 || s.life <= 0) {
+        poolHeight += 0.8;
+        for (let i = 0; i < 6; i++) {
+          particles.push(new SplashParticle(s.x, poolTop, i < 5));
+        }
+        s.done = true;
+        return;
+      }
+
+      if (s.segments.length < 3) return;
+
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (let i = 1; i < s.segments.length; i++) {
+        const progress = i / s.segments.length;
+        const p0 = s.segments[i - 1], p1 = s.segments[i];
+        ctx.beginPath();
+        if (i < s.segments.length - 1) {
+          const mx = (p1.x + s.segments[i + 1].x) / 2;
+          const my = (p1.y + s.segments[i + 1].y) / 2;
+          ctx.moveTo(p0.x, p0.y);
+          ctx.quadraticCurveTo(p1.x, p1.y, mx, my);
+        } else {
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+        }
+        ctx.lineWidth = s.width * (0.55 + progress * 1.1);
+        ctx.strokeStyle = `rgba(178, 9, 7, ${s.alpha * (0.40 + progress * 0.60)})`;
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    // Particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.update();
+      if (p.life <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
+      ctx.fillStyle = `rgba(200, 18, 13, ${p.life / 68})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * (p.life / 80), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (Math.random() < 0.75) {
+      const dead = streams.findIndex(s => s.done);
+      if (dead !== -1) streams[dead] = new BloodStream();
+    }
+
+    if (running) animFrame = requestAnimationFrame(drawBlood);
+  }
+
+  let _cleanupTimer = null;
+  window.startBlood = function() {
+    if (_cleanupTimer) { clearTimeout(_cleanupTimer); _cleanupTimer = null; }
+    if (running) return;
+    running = true;
+    streams = []; particles = []; poolHeight = 0;
+    createStreams(85);
+    canvas.style.opacity = '0.86';
+    drawBlood();
+  };
+
+  window.stopBlood = function() {
+    running = false;
+    cancelAnimationFrame(animFrame);
+    canvas.style.opacity = '0';
+    _cleanupTimer = setTimeout(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      streams = []; particles = []; poolHeight = 0;
+      _cleanupTimer = null;
+    }, 1800);
+  };
 </script>
 
 <script data-goatcounter="https://biomarker.goatcounter.com/count"
