@@ -1326,7 +1326,7 @@ function doReset() {
 })();
 
 /* ── IDLE SIGNAL DECAY ── */
-  const IDLE_DELAY = 3000; // ms — maybe swap to 30000 for production
+  const IDLE_DELAY = 18000; // ms — maybe swap to 30000 for production
 
   const bodyText = document.querySelectorAll(
     '.sec-body, .hero-thesis, .hero-sub, .tl-ev-name, .tl-ev-sub, .tl-ftr-text, .comp-intro, .comp-conv-text, .trs-setup, .trs-punchline, .trs-callout-text, .depth-surface-text, .depth-tech-text, .crit-body, .callout p, .bm-type p, .syn-table td, .ref-list p'
@@ -1462,16 +1462,16 @@ function doReset() {
     const baseY = canvas.height - h;
     waveTime += 0.12;
 
-    // Main blood pool - darker & richer
+    // Tuned to #880808 base - darker, richer, more realistic
     const grad = ctx.createLinearGradient(0, baseY, 0, canvas.height);
-    grad.addColorStop(0, 'rgba(175, 6, 6, 0.96)');
-    grad.addColorStop(0.38, 'rgba(118, 3, 3, 0.98)');
+    grad.addColorStop(0, 'rgba(150, 6, 6, 0.95)');
+    grad.addColorStop(0.4, 'rgba(105, 3, 3, 0.97)');
     grad.addColorStop(1, 'rgba(32, 1, 1, 0.99)');
 
     ctx.fillStyle = grad;
     ctx.fillRect(0, baseY, canvas.width, canvas.height);
 
-    // Violent wave surface
+    // Wave surface
     ctx.beginPath();
     ctx.moveTo(0, baseY);
     for (let x = 0; x <= canvas.width; x += 18) {
@@ -1484,11 +1484,11 @@ function doReset() {
     ctx.lineTo(canvas.width, canvas.height);
     ctx.lineTo(0, canvas.height);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(138, 5, 5, 0.82)';
+    ctx.fillStyle = 'rgba(115, 4, 4, 0.84)';
     ctx.fill();
 
-    // Fixed brighter wave highlight - now reaches full right edge
-    ctx.strokeStyle = 'rgba(255, 155, 140, 0.40)';
+    // Highlight
+    ctx.strokeStyle = 'rgba(255, 130, 115, 0.38)';
     ctx.lineWidth = 9;
     ctx.beginPath();
     ctx.moveTo(0, baseY);
@@ -1508,7 +1508,7 @@ function doReset() {
 
     drawPool();
 
-    // STREAMS
+    // Streams - based on #880808
     streams.forEach(s => {
       if (s.done) return;
       s.life--;
@@ -1554,7 +1554,7 @@ function doReset() {
           ctx.lineTo(p1.x, p1.y);
         }
         ctx.lineWidth = s.width * (0.55 + progress * 1.1);
-        ctx.strokeStyle = `rgba(178, 9, 7, ${s.alpha * (0.40 + progress * 0.60)})`;
+        ctx.strokeStyle = `rgba(136, 8, 8, ${s.alpha * (0.48 + progress * 0.52)})`;
         ctx.stroke();
       }
       ctx.restore();
@@ -1568,7 +1568,7 @@ function doReset() {
         particles.splice(i, 1);
         continue;
       }
-      ctx.fillStyle = `rgba(200, 18, 13, ${p.life / 68})`;
+      ctx.fillStyle = `rgba(160, 12, 10, ${p.life / 70})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size * (p.life / 80), 0, Math.PI * 2);
       ctx.fill();
