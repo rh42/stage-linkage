@@ -651,7 +651,7 @@ footer a:hover { text-decoration:underline; }
     <p class="hero-sub reveal d2">Parkinson's disease vs. schizophrenia.</p>
 
     <p class="hero-thesis reveal d2">
-      Some diseases announce themselves years before they arrive. Others don't. The difference isn't the science. It's the architecture.<br><br>Two disorders. One framework. A striking asymmetry.
+      A test can detect Parkinson's disease hiding in the body more than a decade before any symptom appears. For schizophrenia, no equivalent exists. That gap is not a failure of effort. It is a finding.
     </p>
   </div>
 </section>
@@ -662,7 +662,7 @@ footer a:hover { text-decoration:underline; }
   <div class="container">
     <div class="sec-tag amb reveal">The central question</div>
     <h2 class="sec-h reveal d1">When does a biomarker actually explain a disease?</h2>
-    <p class="sec-body reveal d1">A biomarker associated with a diagnosis may reflect a causal process, or something more peripheral. Most candidate biomarkers establish group-level associations without revealing which of these categories applies.</p>
+    <p class="sec-body reveal d1">A biomarker can be real, replicable, and independently confirmed across cohorts. What it still leaves open is whether it is <strong>upstream of the disease</strong>, a response to it, or present throughout without influencing its course.</p>
 
     <div class="bm-types reveal d2">
       <div class="bm-type">
@@ -693,7 +693,7 @@ footer a:hover { text-decoration:underline; }
   <div class="container">
     <div class="sec-tag amb reveal">Evaluative lens</div>
     <h2 class="sec-h reveal d1">Three criteria for stage-linkage</h2>
-    <p class="sec-body reveal d1">Each criterion is progressively harder to satisfy. Satisfying all three raises evidence above group-level association without establishing causation. These criteria are a conceptual tool for grading evidence, not a formal scale.</p>
+    <p class="sec-body reveal d1">Each criterion is progressively harder to satisfy. Satisfying all three raises evidence <strong>above group-level association</strong> without establishing causation. These criteria are a conceptual tool for grading evidence, not a formal scale.</p>
 
     <div class="criteria reveal d2">
       <div class="criterion">
@@ -722,7 +722,7 @@ footer a:hover { text-decoration:underline; }
   <div class="container">
     <div class="sec-tag pd reveal">03 · Parkinson's disease</div>
     <h2 class="sec-h reveal d1">A biomarker that stages.</h2>
-    <p class="sec-body reveal d1">Parkinson's disease offers what stage-linkage requires: a candidate molecular pathway and a clinically recognisable prodromal phase in which that pathway can be tracked before diagnosis. Among the molecular processes implicated in Parkinson's disease, α-synuclein aggregation is the focus here. It is the only pathway with a biologically validated in vivo biomarker integrated into a research staging system.</p>
+    <p class="sec-body reveal d1">Parkinson's disease has a long pre-symptomatic phase, and that phase is biologically legible. Years before motor onset, <strong>α-synuclein</strong>, the protein at the centre of the disease's pathology, begins to misfold and aggregate in ways that are now detectable in cerebrospinal fluid. It is the only molecular process in Parkinson's disease with a validated in vivo biomarker integrated into a research staging system.</p>
 
     <!-- PD Timeline -->
     <div class="tl-section" id="pdSection">
@@ -795,8 +795,7 @@ footer a:hover { text-decoration:underline; }
       <div class="depth-hdr">
         <div class="depth-hdr-title">Key evidence</div>
         <div style="display:flex;align-items:center;gap:1rem">
-          <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)" id="pdDepthNote">General reading</span>
-          <button class="depth-toggle-btn" onclick="toggleDepth('pdDepth','pdDepthNote','pdDepthBtn')" id="pdDepthBtn">+ research detail</button>
+          <button class="depth-toggle-btn" onclick="toggleDepth('pdDepth','pdDepthBtn')" id="pdDepthBtn">+ research detail</button>
         </div>
       </div>
       <div class="depth-items">
@@ -829,7 +828,7 @@ footer a:hover { text-decoration:underline; }
   <div class="container">
     <div class="sec-tag sz reveal">04 · Schizophrenia</div>
     <h2 class="sec-h reveal d1">A pathway that converges.</h2>
-    <p class="sec-body reveal d1">In schizophrenia, the strongest in vivo biomarker evidence concerns elevated presynaptic striatal dopamine. It is a credible mechanism in established illness, but it occupies a structurally different position. As a "final common pathway," it reflects the convergent endpoint of multiple upstream trajectories. A biomarker positioned downstream of diverse aetiologies cannot distinguish between the trajectories that converge on it.</p>
+    <p class="sec-body reveal d1">In schizophrenia, the strongest in vivo biomarker evidence concerns <strong>presynaptic striatal dopamine</strong>. Unlike α-synuclein in Parkinson's disease, it sits downstream of multiple converging pathways rather than upstream of a staged progression. The prodromal picture reflects that position.</p>
 
     <!-- Schizophrenia Timeline -->
     <div class="tl-section" id="sczSection">
@@ -1004,7 +1003,7 @@ footer a:hover { text-decoration:underline; }
   <div class="container">
     <div class="sec-tag amb reveal">06 · Synthesis</div>
     <h2 class="sec-h reveal d1">Architecture determines the ceiling.</h2>
-    <p class="sec-body reveal d1">The asymmetry between the two programmes reflects their position within each disorder's causal architecture, not investigative effort. Where pathology converges from multiple upstream origins, the most informative finding may not be a staged mechanism but the demonstration that no single mechanism organises the disorder.</p>
+    <p class="sec-body reveal d1">The outcomes differ because <strong>the architectures do</strong>. Parkinson's disease has a single aggregating protein that characterises its pathology and makes staging possible. Schizophrenia has a final common pathway with no traceable origin. You cannot stage what has no single beginning.</p>
 
     <table class="syn-table reveal d2">
       <thead>
@@ -1187,13 +1186,12 @@ if (bmGrid) {
 
 /* ── DEPTH TOGGLE ── */
 const depthState = {};
-function toggleDepth(wrapId, noteId, btnId) {
+function toggleDepth(wrapId, btnId) {
   depthState[wrapId] = !depthState[wrapId];
   const on = depthState[wrapId];
   document.querySelectorAll('#' + wrapId + ' .depth-tech').forEach(t => t.classList.toggle('open', on));
   document.getElementById(btnId).textContent  = on ? '− hide detail' : '+ research detail';
   document.getElementById(btnId).classList.toggle('on', on);
-  document.getElementById(noteId).textContent = on ? 'General + research detail' : 'General reading';
 }
 
 /* ── TRS ── */
@@ -1331,10 +1329,10 @@ function doReset() {
   const IDLE_DELAY = 18000; // ms — maybe swap to 30000 for production
 
   const bodyText = document.querySelectorAll(
-    '.sec-body, .hero-thesis, .tl-ev-sub, .comp-intro, .comp-conv-text,  .trs-setup, .depth-surface-text, .crit-body'
+    '.sec-body, .hero-thesis, .hero-sub, .tl-ev-name, .tl-ev-sub, .tl-ftr-text, .comp-intro, .comp-conv-text, .trs-setup, .trs-punchline, .trs-callout-text, .depth-surface-text, .depth-tech-text, .crit-body, .callout p, .bm-type p, .syn-table td, .ref-list p'
   );
 
-  const headingText = document.querySelectorAll('.concl-quote, .sec-h');
+  const headingText = document.querySelectorAll('.concl-quote, .sec-h, .hero-title');
 
   let signalTimeout;
 
@@ -1342,7 +1340,7 @@ function doReset() {
     bodyText.forEach(el => {
       el.style.transition = 'font-weight 4s ease, filter 4s ease, opacity 4s ease';
       el.style.fontWeight = '300';
-      el.style.filter     = 'blur(0.6px)';
+      el.style.filter     = 'blur(0.8px)';
       el.style.opacity    = '0.75';
     });
     headingText.forEach(el => {
@@ -1370,5 +1368,8 @@ function doReset() {
   resetSignal();
 
 </script>
+
+<script data-goatcounter="https://biomarker.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
